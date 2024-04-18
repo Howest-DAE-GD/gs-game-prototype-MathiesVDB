@@ -22,9 +22,24 @@ public:
 	void ProcessMouseUpEvent( const SDL_MouseButtonEvent& e ) override;
 
 private:
+	//Enum Classes
+	enum class Direction
+	{
+		Up, UpRight, Right, DownRight, Down, DownLeft, Left, UpLeft
+	};
+
+	//Constants
+	const int SPEED			{ 250 };
+	const int RADIUS_PLAYER	{  20 };
+
+	//Variables
+	Point2f m_PlayerPos{ 0, 0 };
+
+	Direction m_Direction{Direction::Right};
 
 	// FUNCTIONS
 	void Initialize();
 	void Cleanup( );
 	void ClearBackground( ) const;
+	void Move(float elapsedSec);
 };
