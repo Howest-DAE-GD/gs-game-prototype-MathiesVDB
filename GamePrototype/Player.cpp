@@ -3,7 +3,7 @@
 #include "utils.h"
 
 Player::Player() :
-	m_Hunger{ MAX_HUNGER }
+	m_Hunger{ float(MAX_HUNGER) }
 {
 	// nothing to do
 }
@@ -19,7 +19,8 @@ void Player::Update(float elapsedSec)
 {
 	Move(elapsedSec);
 
-	--m_Hunger;
+	float hungerChange{ HUNGER_DECREASE * elapsedSec };
+	m_Hunger -= hungerChange;
 }
 
 void Player::Move(float elapsedSec)
@@ -51,7 +52,17 @@ void Player::ShowHunger() const
 	utils::SetColor(Color4f{ 1.f, 0.f, 0.f, 1.f });
 	utils::FillRect(hungerBarLocation, m_Hunger * 3, 40);
 
-	utils::SetColor(Color4f{ 0.f, 0.f, 0.f, 1.f });
+	utils::SetColor(Color4f{ 1.f, 1.f, 1.f, 1.f });
 
-	utils::DrawRect(hungerBarLocation, 300, 40, 2.f);
+	utils::DrawRect(hungerBarLocation, 300, 40, 3.f);
+}
+
+void Player::AddHunger(const float hungerIncrease)
+{
+	m_Hunger += hungerIncrease;
+}
+
+float Player::GetHunger() const
+{
+	return m_Hunger;
 }

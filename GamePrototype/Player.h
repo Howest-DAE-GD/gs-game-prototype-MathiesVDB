@@ -12,6 +12,9 @@ public:
 
 	void Update(float elapsedSec);
 	void ShowHunger() const;
+
+	void  AddHunger(const float hungerIncrease);
+	float GetHunger() const;
 private:
 	//enum Classes
 	enum class Direction
@@ -20,11 +23,12 @@ private:
 	};
 
 	//Constants
-	const int RADIUS_PLAYER	{  15 };
-	const int MAX_HUNGER	{ 100 };
+	const int   RADIUS_PLAYER	{  15    };
+	const int   MAX_HUNGER		{ 100    };
+	const float HUNGER_DECREASE	{   5.f };
 
 	//Variables
-	int m_Hunger;
+	float m_Hunger;
 	Point2f m_PlayerPos{ 10, 10 };
 	
 
