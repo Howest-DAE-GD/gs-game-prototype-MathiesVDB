@@ -20,6 +20,12 @@ Game::~Game( )
 void Game::Initialize( )
 {
 	m_PlayerPtr = new Player();
+
+	//create initial 5 victims
+	for (int counter{}; counter <= 5; ++counter)
+	{
+		CreateVictim(counter);
+	}
 }
 
 void Game::Cleanup( )
@@ -29,14 +35,25 @@ void Game::Cleanup( )
 
 	for (int counter{}; counter < MAX_VICTIMS; ++counter)
 	{
-		delete m_VictimPtrArr[counter];
-		m_VictimPtrArr[counter] = nullptr;
+		if (m_VictimPtrArr[counter] != 0)
+		{
+			delete m_VictimPtrArr[counter];
+			m_VictimPtrArr[counter] = nullptr;
+		}
 	}
 }
 
 void Game::Update( float elapsedSec )
 {
-	m_PlayerPtr->Move(elapsedSec);
+	m_PlayerPtr->Update(elapsedSec);
+
+	for (int counter{}; counter < MAX_VICTIMS; ++counter)
+	{
+		if (m_VictimPtrArr[counter] != 0)
+		{
+			m_VictimPtrArr[counter]->Move(elapsedSec);
+		}
+	}
 
 	if (m_State != GameState::Game)
 	{
@@ -53,7 +70,7 @@ void Game::Draw( ) const
 		StartScreen();
 		break;
 	case GameState::Game:
-		m_PlayerPtr->Draw();
+		GameScreen();
 		break;
 	case GameState::GameOver:
 
@@ -63,19 +80,35 @@ void Game::Draw( ) const
 	}
 }
 
-void Game::StartScreen()
+void Game::GameScreen() const
+{
+	m_PlayerPtr->Draw();
+
+	for (int counter{}; counter < MAX_VICTIMS; ++counter)
+	{
+		if (m_VictimPtrArr[counter] != 0)
+		{
+			m_VictimPtrArr[counter]->Draw();
+		}
+	}
+}
+
+void Game::StartScreen() const
 {
 	
 }
 
-void Game::GameOverScreen()
+void Game::GameOverScreen() const
 {
 
 }
 
-void Game::CreateVictim()
+void Game::CreateVictim(const int index)
 {
-	
+	if (m_VictimPtrArr[index] == 0)
+	{
+		m_VictimPtrArr[index] = new Victim();
+	}
 }
 
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )

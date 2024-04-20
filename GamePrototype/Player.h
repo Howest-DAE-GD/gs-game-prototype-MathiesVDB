@@ -9,6 +9,9 @@ public:
 	virtual void Draw() const override;
 	virtual void Move(float elapsedSec) override;
 	virtual void Action() override;
+
+	void Update(float elapsedSec);
+	void ShowHunger() const;
 private:
 	//enum Classes
 	enum class Direction
@@ -17,8 +20,7 @@ private:
 	};
 
 	//Constants
-	const int SPEED			{ 250 };
-	const int RADIUS_PLAYER	{  20 };
+	const int RADIUS_PLAYER	{  15 };
 	const int MAX_HUNGER	{ 100 };
 
 	//Variables

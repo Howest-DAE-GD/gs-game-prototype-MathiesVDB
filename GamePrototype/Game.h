@@ -46,7 +46,8 @@ private:
 	void Initialize();
 	void Cleanup( );
 	void ClearBackground( ) const;
-	void StartScreen();
-	void GameOverScreen();
-	void CreateVictim();
+	void GameScreen() const;
+	void StartScreen() const;
+	void GameOverScreen() const;
+	void CreateVictim(const int index);
 };
