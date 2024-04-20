@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Game.h"
 #include "utils.h"
+#include "Victim.h"
+#include "Player.h"
 
 Game::Game( const Window& window ) 
 	:BaseGame{ window }
@@ -15,23 +17,25 @@ Game::~Game( )
 
 void Game::Initialize( )
 {
-	
+	m_PlayerPtr = new Player();
 }
 
 void Game::Cleanup( )
 {
+	delete m_PlayerPtr;
+	m_PlayerPtr = nullptr;
 }
 
 void Game::Update( float elapsedSec )
 {
-	Move(elapsedSec);
+	m_PlayerPtr->Move(elapsedSec);
 }
 
 void Game::Draw( ) const
 {
 	ClearBackground( );
 
-	utils::DrawEllipse(m_PlayerPos, RADIUS_PLAYER, RADIUS_PLAYER, 3.f);
+	m_PlayerPtr->Draw();
 }
 
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
@@ -101,22 +105,4 @@ void Game::ClearBackground( ) const
 {
 	glClearColor( 0.0f, 0.0f, 0.3f, 1.0f );
 	glClear( GL_COLOR_BUFFER_BIT );
-}
-
-void Game::Move(float elapsedSec)
-{
-	const Uint8* pStates = SDL_GetKeyboardState(nullptr);
-
-	// read the key values
-
-	const bool isLeft	{ bool(pStates[SDL_SCANCODE_LEFT]) };
-	const bool isRight	{ bool(pStates[SDL_SCANCODE_RIGHT]) };
-	const bool isUp		{ bool(pStates[SDL_SCANCODE_UP]) };
-	const bool isDown	{ bool(pStates[SDL_SCANCODE_DOWN]) };
-
-	// update position
-	if (isLeft)		m_PlayerPos.x -= SPEED * elapsedSec;
-	if (isRight)	m_PlayerPos.x += SPEED * elapsedSec;
-	if (isUp)		m_PlayerPos.y += SPEED * elapsedSec;
-	if (isDown)		m_PlayerPos.y -= SPEED * elapsedSec;
 }

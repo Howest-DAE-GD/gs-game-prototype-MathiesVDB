@@ -1,12 +1,14 @@
 #pragma once
-class Victim
+#include "Entity.h"
+
+class Victim : public Entity
 {
 public:
 	explicit Victim();
 
-	virtual void Draw() const;
-	virtual void Move(float elapsedSec);
-	virtual void Attack();
+	virtual void Draw() const override;
+	virtual void Move(float elapsedSec) override;
+	virtual void Attack() override;
 private:
 
 };
