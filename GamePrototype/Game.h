@@ -2,6 +2,7 @@
 #include "BaseGame.h"
 
 class Player;
+class Victim;
 
 class Game : public BaseGame
 {
@@ -25,10 +26,27 @@ public:
 	void ProcessMouseUpEvent( const SDL_MouseButtonEvent& e ) override;
 
 private:
+	//Constants
+	static const int MAX_VICTIMS{ 15 };
+
+	// Enum Class
+	enum class GameState
+	{
+		Start, Game, GameOver
+	};
+
+	// Private 
 	Player* m_PlayerPtr;
+
+	GameState m_State;
+
+	Victim* m_VictimPtrArr[MAX_VICTIMS];
 
 	// FUNCTIONS
 	void Initialize();
 	void Cleanup( );
 	void ClearBackground( ) const;
+	void StartScreen();
+	void GameOverScreen();
+	void CreateVictim();
 };

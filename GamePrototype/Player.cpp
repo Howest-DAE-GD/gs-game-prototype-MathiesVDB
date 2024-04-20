@@ -2,8 +2,10 @@
 #include "Player.h"
 #include "utils.h"
 
-Player::Player()
+Player::Player() :
+	m_Hunger{ MAX_HUNGER }
 {
+	// nothing to do
 }
 
 void Player::Draw() const
@@ -29,6 +31,6 @@ void Player::Move(float elapsedSec)
 	if (isDown)		m_PlayerPos.y -= SPEED * elapsedSec;
 }
 
-void Player::Attack()
+void Player::Action()
 {
 }

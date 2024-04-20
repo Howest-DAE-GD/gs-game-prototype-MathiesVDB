@@ -6,7 +6,7 @@ public:
 
 	virtual void Draw() const;
 	virtual void Move(float elapsedSec);
-	virtual void Attack();
+	virtual void Action();
 private:
 
 };

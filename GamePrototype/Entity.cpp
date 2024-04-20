@@ -16,7 +16,7 @@ void Entity::Move(float elapsedSec)
 
 }
 
-void Entity::Attack()
+void Entity::Action()
 {
 
 }
