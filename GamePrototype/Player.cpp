@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Player.h"
+#include "Victim.h"
 #include "utils.h"
+#include "iostream"
 
 Player::Player() :
 	m_Hunger{ float(MAX_HUNGER) }
@@ -10,7 +12,9 @@ Player::Player() :
 
 void Player::Draw() const
 {
-	utils::DrawEllipse(m_PlayerPos, RADIUS_PLAYER, RADIUS_PLAYER, 3.f);
+	utils::DrawEllipse(m_Position, RADIUS_PLAYER, RADIUS_PLAYER, 3.f);
+
+	utils::DrawEllipse(m_Position, KILL_RADIUS, KILL_RADIUS, 2.f);
 
 	ShowHunger();
 }
@@ -35,14 +39,17 @@ void Player::Move(float elapsedSec)
 	const bool isDown	{ bool(pStates[SDL_SCANCODE_DOWN])  };
 
 	// update position
-	if (isLeft)		m_PlayerPos.x -= SPEED * elapsedSec;
-	if (isRight)	m_PlayerPos.x += SPEED * elapsedSec;
-	if (isUp)		m_PlayerPos.y += SPEED * elapsedSec;
-	if (isDown)		m_PlayerPos.y -= SPEED * elapsedSec;
+	if (isLeft)		m_Position.x -= SPEED * elapsedSec;
+	if (isRight)	m_Position.x += SPEED * elapsedSec;
+	if (isUp)		m_Position.y += SPEED * elapsedSec;
+	if (isDown)		m_Position.y -= SPEED * elapsedSec;
 }
 
-void Player::Action()
+void Player::Action(Victim* victim)
 {
+	m_Position = victim->GetVictimPosition();
+
+	AddHunger(25.f);
 }
 
 void Player::ShowHunger() const
@@ -60,9 +67,25 @@ void Player::ShowHunger() const
 void Player::AddHunger(const float hungerIncrease)
 {
 	m_Hunger += hungerIncrease;
+
+	if (m_Hunger >= MAX_HUNGER)
+	{
+		m_Hunger == MAX_HUNGER;
+	}
 }
 
 float Player::GetHunger() const
 {
 	return m_Hunger;
+}
+
+bool Player::IsClose(Victim* victim) const
+{
+	Circlef playerKillRadius{ m_Position, (float)KILL_RADIUS };
+
+	if (utils::IsOverlapping(victim->GetVictimRect(), playerKillRadius))
+	{
+		return true;
+	}
+	return false;
 }

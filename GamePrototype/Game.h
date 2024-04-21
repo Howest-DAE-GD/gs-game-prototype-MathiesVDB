@@ -36,11 +36,12 @@ private:
 	};
 
 	// Private 
-	Player* m_PlayerPtr;
+	bool m_IsAttacking;
 
 	GameState m_State;
 
 	Victim* m_VictimPtrArr[MAX_VICTIMS];
+	Player* m_PlayerPtr;
 
 	// FUNCTIONS
 	void Initialize();
@@ -50,4 +51,6 @@ private:
 	void StartScreen() const;
 	void GameOverScreen() const;
 	void CreateVictim(const int index);
+	void DeleteVictim(const int index);
+	void Target(const int index);
 };

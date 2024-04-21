@@ -1,6 +1,8 @@
 #pragma once
 #include "Entity.h"
 
+class Victim;
+
 class Player : public Entity
 {
 public:
@@ -8,13 +10,15 @@ public:
 
 	virtual void Draw() const override;
 	virtual void Move(float elapsedSec) override;
-	virtual void Action() override;
+	virtual void Action(Victim* victim);
 
 	void Update(float elapsedSec);
 	void ShowHunger() const;
 
 	void  AddHunger(const float hungerIncrease);
 	float GetHunger() const;
+
+	bool IsClose(Victim* victim) const;
 private:
 	//enum Classes
 	enum class Direction
@@ -25,11 +29,12 @@ private:
 	//Constants
 	const int   RADIUS_PLAYER	{  15    };
 	const int   MAX_HUNGER		{ 100    };
-	const float HUNGER_DECREASE	{   5.f };
+	const float HUNGER_DECREASE	{   5.f  };
+	const int	KILL_RADIUS		{  50    };
 
 	//Variables
 	float m_Hunger;
-	Point2f m_PlayerPos{ 10, 10 };
+	Point2f m_Position{ 450, 250 };
 	
 
 	Direction m_Direction{ Direction::Right };

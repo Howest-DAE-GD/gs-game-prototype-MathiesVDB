@@ -4,11 +4,18 @@
 class Victim : public Entity
 {
 public:
-	explicit Victim();
+	explicit	 Victim();
 
 	virtual void Draw() const override;
 	virtual void Move(float elapsedSec) override;
 	virtual void Action() override;
+
+	Rectf&		 GetVictimRect();
+	Point2f&	 GetVictimPosition();
+
+	bool		 IsTargetable() const;
+
+	void		 ToggleTargetable();
 private:
 	//Constants
 	static const	 int	VICTIM_SIZE		{ 25    };
@@ -18,5 +25,6 @@ private:
 	Point2f m_Position;
 
 	float	m_MoveTimer;
+	bool	m_Targetable;
 };
 

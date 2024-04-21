@@ -3,11 +3,13 @@
 #include "utils.h"
 #include "Victim.h"
 #include "Player.h"
+#include "iostream"
 
 Game::Game( const Window& window ) 
 	:	BaseGame{ window },
 		m_State{GameState::Start},
-		m_VictimPtrArr{}
+		m_VictimPtrArr{},
+		m_IsAttacking{false}
 {
 	Initialize();
 }
@@ -35,11 +37,7 @@ void Game::Cleanup( )
 
 	for (int counter{}; counter < MAX_VICTIMS; ++counter)
 	{
-		if (m_VictimPtrArr[counter] != 0)
-		{
-			delete m_VictimPtrArr[counter];
-			m_VictimPtrArr[counter] = nullptr;
-		}
+		DeleteVictim(counter);
 	}
 }
 
@@ -52,6 +50,17 @@ void Game::Update( float elapsedSec )
 		if (m_VictimPtrArr[counter] != 0)
 		{
 			m_VictimPtrArr[counter]->Move(elapsedSec);
+
+			Target(counter);
+
+			if (m_IsAttacking && m_VictimPtrArr[counter]->IsTargetable())
+			{
+				m_PlayerPtr->Action(m_VictimPtrArr[counter]);
+
+				DeleteVictim(counter);
+
+				m_IsAttacking = false;
+			}
 		}
 	}
 
@@ -111,8 +120,39 @@ void Game::CreateVictim(const int index)
 	}
 }
 
+void Game::DeleteVictim(const int index)
+{
+	if (m_VictimPtrArr[index] != 0)
+	{
+		delete m_VictimPtrArr[index];
+		m_VictimPtrArr[index] = nullptr;
+	}
+}
+
+void Game::Target(const int index)
+{
+	if (m_PlayerPtr->IsClose(m_VictimPtrArr[index]))
+	{
+		if (!m_VictimPtrArr[index]->IsTargetable())
+		{
+			m_VictimPtrArr[index]->ToggleTargetable();
+		}
+	}
+	else
+	{
+		if (m_VictimPtrArr[index]->IsTargetable())
+		{
+			m_VictimPtrArr[index]->ToggleTargetable();
+		}
+	}
+}
+
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 {
+	if (SDLK_SPACE)
+	{
+		m_IsAttacking = true;
+	}
 }
 
 void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
