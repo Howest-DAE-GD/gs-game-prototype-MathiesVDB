@@ -16,6 +16,9 @@
     <Filter Include="Entity Files">
       <UniqueIdentifier>{16f5625a-9e33-474d-9b48-0a2bca60b65d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Text Files">
+      <UniqueIdentifier>{18766729-44e1-483c-af2b-aca278aff08f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -36,6 +39,9 @@
     <ClCompile Include="Victim.cpp">
       <Filter>Entity Files</Filter>
     </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>Text Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -52,6 +58,9 @@
     </ClInclude>
     <ClInclude Include="Entity.h">
       <Filter>Entity Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>Text Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

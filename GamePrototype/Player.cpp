@@ -25,6 +25,8 @@ void Player::Update(float elapsedSec)
 
 	float hungerChange{ HUNGER_DECREASE * elapsedSec };
 	m_Hunger -= hungerChange;
+
+	//std::cout << m_IsAttacking << std::endl;
 }
 
 void Player::Move(float elapsedSec)
@@ -33,10 +35,10 @@ void Player::Move(float elapsedSec)
 
 	// read the key values
 
-	const bool isLeft	{ bool(pStates[SDL_SCANCODE_LEFT])  };
+	const bool isLeft	{ bool(pStates[SDL_SCANCODE_LEFT ]) };
 	const bool isRight	{ bool(pStates[SDL_SCANCODE_RIGHT]) };
-	const bool isUp		{ bool(pStates[SDL_SCANCODE_UP])    };
-	const bool isDown	{ bool(pStates[SDL_SCANCODE_DOWN])  };
+	const bool isUp		{ bool(pStates[SDL_SCANCODE_UP   ]) };
+	const bool isDown	{ bool(pStates[SDL_SCANCODE_DOWN ]) };
 
 	// update position
 	if (isLeft)		m_Position.x -= SPEED * elapsedSec;
@@ -47,21 +49,21 @@ void Player::Move(float elapsedSec)
 
 void Player::Action(Victim* victim)
 {
-	m_Position = victim->GetVictimPosition();
+		m_Position = victim->GetVictimPosition();
 
-	AddHunger(25.f);
+		AddHunger(20.f);
 }
 
 void Player::ShowHunger() const
 {
-	Point2f hungerBarLocation{ 300, 50 };
+	const Point2f hungerBarLocation{ 250, 10 };
 
 	utils::SetColor(Color4f{ 1.f, 0.f, 0.f, 1.f });
-	utils::FillRect(hungerBarLocation, m_Hunger * 3, 40);
+	utils::FillRect(hungerBarLocation, m_Hunger * 4, 40);
 
 	utils::SetColor(Color4f{ 1.f, 1.f, 1.f, 1.f });
 
-	utils::DrawRect(hungerBarLocation, 300, 40, 3.f);
+	utils::DrawRect(hungerBarLocation, 400, 40, 3.f);
 }
 
 void Player::AddHunger(const float hungerIncrease)
@@ -70,7 +72,7 @@ void Player::AddHunger(const float hungerIncrease)
 
 	if (m_Hunger >= MAX_HUNGER)
 	{
-		m_Hunger == MAX_HUNGER;
+		m_Hunger = MAX_HUNGER;
 	}
 }
 
@@ -87,5 +89,10 @@ bool Player::IsClose(Victim* victim) const
 	{
 		return true;
 	}
+	return false;
+}
+
+bool Player::HasAttacked() const
+{
 	return false;
 }

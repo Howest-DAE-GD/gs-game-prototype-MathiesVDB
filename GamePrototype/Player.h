@@ -19,6 +19,7 @@ public:
 	float GetHunger() const;
 
 	bool IsClose(Victim* victim) const;
+	bool HasAttacked() const;
 private:
 	//enum Classes
 	enum class Direction
@@ -34,8 +35,9 @@ private:
 
 	//Variables
 	float m_Hunger;
+	bool m_HasTarget;
+
 	Point2f m_Position{ 450, 250 };
-	
 
 	Direction m_Direction{ Direction::Right };
 };

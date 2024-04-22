@@ -4,12 +4,14 @@
 #include "Victim.h"
 #include "Player.h"
 #include "iostream"
+#include "Text.h"
 
 Game::Game( const Window& window ) 
 	:	BaseGame{ window },
 		m_State{GameState::Start},
 		m_VictimPtrArr{},
-		m_IsAttacking{false}
+		m_IsAttacking{},
+		m_RespawnTimer{}
 {
 	Initialize();
 }
@@ -43,6 +45,10 @@ void Game::Cleanup( )
 
 void Game::Update( float elapsedSec )
 {
+	m_RespawnTimer += elapsedSec;
+
+	CheckAttacking();
+	
 	m_PlayerPtr->Update(elapsedSec);
 
 	for (int counter{}; counter < MAX_VICTIMS; ++counter)
@@ -58,10 +64,15 @@ void Game::Update( float elapsedSec )
 				m_PlayerPtr->Action(m_VictimPtrArr[counter]);
 
 				DeleteVictim(counter);
-
-				m_IsAttacking = false;
 			}
 		}
+	}
+
+	if (m_RespawnTimer >= RESPAWN_TIME_VICTIMS)
+	{
+		RespawnVictim();
+
+		m_RespawnTimer = 0;
 	}
 
 	if (m_State != GameState::Game)
@@ -147,12 +158,29 @@ void Game::Target(const int index)
 	}
 }
 
+void Game::CheckAttacking()
+{
+	const Uint8* pStates = SDL_GetKeyboardState(nullptr);
+
+	bool isAttack{ bool(pStates[SDL_SCANCODE_SPACE]) };
+
+	m_IsAttacking = isAttack;
+}
+
+void Game::RespawnVictim()
+{
+	for (int counter{}; counter < MAX_VICTIMS; ++counter)
+	{
+		if (m_VictimPtrArr[counter] == 0)
+		{
+			CreateVictim(counter);
+			return;
+		}
+	}
+}
+
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 {
-	if (SDLK_SPACE)
-	{
-		m_IsAttacking = true;
-	}
 }
 
 void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )

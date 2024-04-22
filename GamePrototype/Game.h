@@ -3,6 +3,7 @@
 
 class Player;
 class Victim;
+class Text;
 
 class Game : public BaseGame
 {
@@ -27,7 +28,8 @@ public:
 
 private:
 	//Constants
-	static const int MAX_VICTIMS{ 15 };
+	static const int		MAX_VICTIMS{ 15 };
+	static constexpr float	RESPAWN_TIME_VICTIMS{ 3.f };
 
 	// Enum Class
 	enum class GameState
@@ -36,6 +38,7 @@ private:
 	};
 
 	// Private 
+	float m_RespawnTimer;
 	bool m_IsAttacking;
 
 	GameState m_State;
@@ -53,4 +56,6 @@ private:
 	void CreateVictim(const int index);
 	void DeleteVictim(const int index);
 	void Target(const int index);
+	void CheckAttacking();
+	void RespawnVictim();
 };
