@@ -10,8 +10,8 @@ public:
 	virtual void Move(float elapsedSec) override;
 	virtual void Action() override;
 
-	Rectf&		 GetVictimRect();
-	Point2f&	 GetVictimPosition();
+	Rectf		 GetVictimRect();
+	Point2f	 GetVictimPosition();
 
 	bool		 IsTargetable() const;
 

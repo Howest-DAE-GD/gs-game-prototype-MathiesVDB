@@ -45,13 +45,13 @@ void Victim::Action()
 {
 }
 
-Rectf& Victim::GetVictimRect()
+Rectf Victim::GetVictimRect()
 {
 	Rectf VictimRect{ m_Position.x, m_Position.y, VICTIM_SIZE, VICTIM_SIZE };
 	return VictimRect;
 }
 
-Point2f& Victim::GetVictimPosition()
+Point2f Victim::GetVictimPosition()
 {
 	return m_Position;
 }
