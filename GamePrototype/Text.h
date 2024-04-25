@@ -9,9 +9,9 @@ public:
 	virtual void Draw(Point2f position) const;
 
 protected:
-	TTF_Font* m_FontPtr;
-	Color4f m_TextColor;
+	TTF_Font*	m_FontPtr;
+	Color4f		m_TextColor;
 	std::string m_Text;
-	Texture* m_TextTexturePtr;
+	Texture*	m_TextTexturePtr;
 };
 

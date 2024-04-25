@@ -12,7 +12,7 @@ public:
 	virtual void Move(float elapsedSec) override;
 	virtual void Action(Victim* victim);
 
-	void Update(float elapsedSec);
+	void Update(float elapsedSec, bool isPlaying);
 	void ShowHunger() const;
 
 	void  AddHunger(const float hungerIncrease);
@@ -30,7 +30,7 @@ private:
 	//Constants
 	const int   RADIUS_PLAYER	{  15    };
 	const int   MAX_HUNGER		{ 100    };
-	const float HUNGER_DECREASE	{   5.f  };
+	const float HUNGER_DECREASE	{  15.f  };
 	const int	KILL_RADIUS		{  50    };
 
 	//Variables

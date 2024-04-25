@@ -29,7 +29,7 @@ public:
 private:
 	//Constants
 	static const int		MAX_VICTIMS{ 15 };
-	static constexpr float	RESPAWN_TIME_VICTIMS{ 3.f };
+	static constexpr float	RESPAWN_TIME_VICTIMS{ 1.5f };
 
 	// Enum Class
 	enum class GameState
@@ -38,13 +38,21 @@ private:
 	};
 
 	// Private 
-	float m_RespawnTimer;
-	bool m_IsAttacking;
+	float		m_RespawnTimer;
+	bool		m_IsAttacking;
+	int			m_Score;
+	std::string m_Score_As_String;
 
 	GameState m_State;
 
-	Victim* m_VictimPtrArr[MAX_VICTIMS];
-	Player* m_PlayerPtr;
+	Victim*		m_VictimPtrArr[MAX_VICTIMS];
+	Player*		m_PlayerPtr;
+	TTF_Font*	m_BigFontPtr;
+	TTF_Font*	m_SmallFontPtr;
+	Text*		m_GameOverTextPtr;
+	Text*		m_StartTextPtr;
+	Text*		m_ScoreTextPtr;
+	Text*		m_ScoreNumberPtr;
 
 	// FUNCTIONS
 	void Initialize();

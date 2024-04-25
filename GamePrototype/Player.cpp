@@ -14,19 +14,22 @@ void Player::Draw() const
 {
 	utils::DrawEllipse(m_Position, RADIUS_PLAYER, RADIUS_PLAYER, 3.f);
 
-	utils::DrawEllipse(m_Position, KILL_RADIUS, KILL_RADIUS, 2.f);
+	//utils::DrawEllipse(m_Position, KILL_RADIUS, KILL_RADIUS, 2.f);
 
 	ShowHunger();
 }
 
-void Player::Update(float elapsedSec)
+void Player::Update(float elapsedSec, bool isPlaying)
 {
-	Move(elapsedSec);
+	if (isPlaying)
+	{
+		Move(elapsedSec);
 
-	float hungerChange{ HUNGER_DECREASE * elapsedSec };
-	m_Hunger -= hungerChange;
+		float hungerChange{ HUNGER_DECREASE * elapsedSec };
+		m_Hunger -= hungerChange;
 
-	//std::cout << m_IsAttacking << std::endl;
+		//std::cout << m_IsAttacking << std::endl;
+	}
 }
 
 void Player::Move(float elapsedSec)

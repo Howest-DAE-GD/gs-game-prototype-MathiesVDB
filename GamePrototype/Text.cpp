@@ -9,12 +9,6 @@ Text::Text(std::string text, Color4f textColor, TTF_Font* fontPath)
 
 Text::~Text()
 {
-	if (m_FontPtr != nullptr)
-	{
-		TTF_CloseFont(m_FontPtr);
-		m_FontPtr = nullptr;
-	}
-
 	delete m_TextTexturePtr;
 }
 
