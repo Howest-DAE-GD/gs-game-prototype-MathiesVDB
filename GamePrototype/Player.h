@@ -17,9 +17,12 @@ public:
 
 	void  AddHunger(const float hungerIncrease);
 	float GetHunger() const;
+	int	  GetMaxHunger() const;
 
 	bool IsClose(Victim* victim) const;
 	bool HasAttacked() const;
+
+	void SetPosition(const Point2f& newPos);
 private:
 	//enum Classes
 	enum class Direction
@@ -31,7 +34,7 @@ private:
 	const int   RADIUS_PLAYER	{  15    };
 	const int   MAX_HUNGER		{ 100    };
 	const float HUNGER_DECREASE	{  15.f  };
-	const int	KILL_RADIUS		{  50    };
+	const int	KILL_RADIUS		{  35    };
 
 	//Variables
 	float m_Hunger;

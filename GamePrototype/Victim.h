@@ -19,12 +19,14 @@ public:
 private:
 	//Constants
 	static const	 int	VICTIM_SIZE		{ 25    };
-	static constexpr float	IDLE_MOVE_TIMER	{  2.5f };
+	static constexpr float	WANDER_TIMER	{  0.5f };
 
 	//Private Members
 	Point2f m_Position;
 
 	float	m_MoveTimer;
+	int		m_RandomDirection;
 	bool	m_Targetable;
+	bool	m_IsMoving;
 };
 

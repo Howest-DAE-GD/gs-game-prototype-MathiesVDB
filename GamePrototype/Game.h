@@ -53,6 +53,7 @@ private:
 	Text*		m_StartTextPtr;
 	Text*		m_ScoreTextPtr;
 	Text*		m_ScoreNumberPtr;
+	Text*		m_FinalScoreTextPtr;
 
 	// FUNCTIONS
 	void Initialize();
@@ -66,4 +67,5 @@ private:
 	void Target(const int index);
 	void CheckAttacking();
 	void RespawnVictim();
+	void ResetGame();
 };

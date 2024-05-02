@@ -5,8 +5,10 @@
 #include "iostream"
 
 Victim::Victim() :
-	m_MoveTimer{},
-	m_Targetable{ false }
+	m_MoveTimer	{},
+	m_Targetable{ false },
+	m_IsMoving	{ false },
+	m_RandomDirection{}
 {
 	m_Position = Point2f{ float(rand() % 800), float(rand() % 500) };
 }
@@ -29,20 +31,31 @@ void Victim::Draw() const
 void Victim::Move(float elapsedSec)
 {
 	m_MoveTimer += elapsedSec;
-	if (m_MoveTimer >= IDLE_MOVE_TIMER)
+	if (m_MoveTimer >= WANDER_TIMER)
 	{
-		int randomDirection{ rand() % 4 };
-		if (randomDirection == 0)	m_Position.x -= SPEED * elapsedSec;
-		if (randomDirection == 1)	m_Position.x += SPEED * elapsedSec;
-		if (randomDirection == 2)	m_Position.y += SPEED * elapsedSec;
-		if (randomDirection == 3)	m_Position.y -= SPEED * elapsedSec;
-
-		m_MoveTimer = 0;
+		if (m_IsMoving)
+		{
+			m_MoveTimer = -1.f;
+		}
+		else
+		{
+			m_MoveTimer = (rand() % 10) / 10;
+		}
+		m_IsMoving = !m_IsMoving;
+		m_RandomDirection = rand() % 4;
+	}
+	if(m_IsMoving)
+	{
+		if (m_RandomDirection == 0)	m_Position.x -= (SPEED - 100) * elapsedSec;
+		if (m_RandomDirection == 1)	m_Position.x += (SPEED - 100) * elapsedSec;
+		if (m_RandomDirection == 2)	m_Position.y += (SPEED - 100) * elapsedSec;
+		if (m_RandomDirection == 3)	m_Position.y -= (SPEED - 100) * elapsedSec;
 	}
 }
 
 void Victim::Action()
 {
+
 }
 
 Rectf Victim::GetVictimRect()

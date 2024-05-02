@@ -14,7 +14,7 @@ void Player::Draw() const
 {
 	utils::DrawEllipse(m_Position, RADIUS_PLAYER, RADIUS_PLAYER, 3.f);
 
-	//utils::DrawEllipse(m_Position, KILL_RADIUS, KILL_RADIUS, 2.f);
+	utils::DrawEllipse(m_Position, KILL_RADIUS, KILL_RADIUS, 2.f);
 
 	ShowHunger();
 }
@@ -27,8 +27,6 @@ void Player::Update(float elapsedSec, bool isPlaying)
 
 		float hungerChange{ HUNGER_DECREASE * elapsedSec };
 		m_Hunger -= hungerChange;
-
-		//std::cout << m_IsAttacking << std::endl;
 	}
 }
 
@@ -51,10 +49,10 @@ void Player::Move(float elapsedSec)
 }
 
 void Player::Action(Victim* victim)
-{
-		m_Position = victim->GetVictimPosition();
+{	
+	
 
-		AddHunger(20.f);
+	AddHunger(20.f);
 }
 
 void Player::ShowHunger() const
@@ -84,6 +82,11 @@ float Player::GetHunger() const
 	return m_Hunger;
 }
 
+int Player::GetMaxHunger() const
+{
+	return MAX_HUNGER;
+}
+
 bool Player::IsClose(Victim* victim) const
 {
 	Circlef playerKillRadius{ m_Position, (float)KILL_RADIUS };
@@ -98,4 +101,9 @@ bool Player::IsClose(Victim* victim) const
 bool Player::HasAttacked() const
 {
 	return false;
+}
+
+void Player::SetPosition(const Point2f& newPos)
+{
+	m_Position = newPos;
 }

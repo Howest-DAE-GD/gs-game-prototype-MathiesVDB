@@ -14,7 +14,8 @@ Game::Game(const Window& window)
 	m_RespawnTimer{},
 	m_GameOverTextPtr{},
 	m_Score{},
-	m_Score_As_String{"0"}
+	m_Score_As_String{"0"},
+	m_FinalScoreTextPtr{}
 {
 	Initialize();
 }
@@ -30,16 +31,12 @@ void Game::Initialize( )
 	m_SmallFontPtr	= TTF_OpenFont("Jersey15-Regular.ttf", 30);
 	m_PlayerPtr		= new Player();
 
-	//create initial 5 victims
-	for (int counter{}; counter <= 5; ++counter)
-	{
-		CreateVictim(counter);
-	}
+	ResetGame();
 
 	m_GameOverTextPtr = new Text("GAME OVER",		Color4f{ 1.f, 1.f, 1.f, 1.f }, m_BigFontPtr);
 	m_StartTextPtr	  = new Text("CLICK TO START",	Color4f{ 1.f, 1.f, 1.f, 1.f }, m_BigFontPtr);
 	m_ScoreTextPtr	  = new Text("Score: ",			Color4f{ 1.f, 1.f, 1.f, 1.f }, m_SmallFontPtr);
-	m_ScoreNumberPtr = new Text(m_Score_As_String,	Color4f{ 1.f, 1.f, 1.f, 1.f }, m_SmallFontPtr);
+	m_ScoreNumberPtr  = new Text(m_Score_As_String,	Color4f{ 1.f, 1.f, 1.f, 1.f }, m_SmallFontPtr);
 }
 
 void Game::Cleanup( )
@@ -73,6 +70,24 @@ void Game::Cleanup( )
 		m_SmallFontPtr = nullptr;
 	}
 
+}
+
+void Game::ResetGame()
+{
+	m_State = GameState::Start;
+	m_Score = 0;
+	m_PlayerPtr->SetPosition(Point2f{ 450, 250 });
+	m_PlayerPtr->AddHunger(m_PlayerPtr->GetMaxHunger());
+
+	for (int counter{}; counter < MAX_VICTIMS; ++counter)
+	{
+		DeleteVictim(counter);
+	}
+
+	for (int counter{}; counter <= 5; ++counter)
+	{
+		CreateVictim(counter);
+	}
 }
 
 void Game::Update( float elapsedSec )
@@ -120,6 +135,11 @@ void Game::Update( float elapsedSec )
 
 	delete m_ScoreNumberPtr;
 	m_ScoreNumberPtr = new Text(m_Score_As_String, Color4f{ 1.f, 1.f, 1.f, 1.f }, m_SmallFontPtr);
+
+	if (m_State == GameState::GameOver && m_FinalScoreTextPtr == 0)
+	{
+		m_FinalScoreTextPtr = new Text("Final Score: " + m_Score_As_String, Color4f{ 1.f, 1.f, 1.f, 1.f }, m_SmallFontPtr);
+	}
 }
 
 void Game::Draw( ) const
@@ -164,7 +184,8 @@ void Game::StartScreen() const
 
 void Game::GameOverScreen() const
 {
-	m_GameOverTextPtr->Draw(Point2f{ GetViewPort().width / 2 - 20, GetViewPort().height / 2 + 100 });
+	m_GameOverTextPtr->Draw(Point2f{ GetViewPort().width / 2 - 20, GetViewPort().height / 2 + 120 });
+	m_FinalScoreTextPtr->Draw(Point2f{ GetViewPort().width / 2, GetViewPort().height / 2 + 40 });
 }
 
 void Game::CreateVictim(const int index)
@@ -208,7 +229,10 @@ void Game::CheckAttacking()
 
 	bool isAttack{ bool(pStates[SDL_SCANCODE_SPACE]) };
 
-	m_IsAttacking = isAttack;
+	if (!m_IsAttacking)
+	{
+		m_IsAttacking = isAttack;
+	}
 }
 
 void Game::RespawnVictim()
@@ -225,6 +249,10 @@ void Game::RespawnVictim()
 
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 {
+	if (e.keysym.sym == SDLK_r && m_State == GameState::GameOver)
+	{
+		ResetGame();
+	}
 }
 
 void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
