@@ -169,17 +169,17 @@ void Game::GameScreen() const
 	{
 		glTranslatef(-m_cameraPos.x, -m_cameraPos.y, 0);
 
-		m_PlayerPtr->Draw();
-	}
-	glPopMatrix();
+		m_PlayerPtr->Draw(GetViewPort());
 
-	for (int counter{}; counter < MAX_VICTIMS; ++counter)
-	{
-		if (m_VictimPtrArr[counter] != 0)
+		for (int counter{}; counter < MAX_VICTIMS; ++counter)
 		{
-			m_VictimPtrArr[counter]->Draw();
+			if (m_VictimPtrArr[counter] != 0)
+			{
+				m_VictimPtrArr[counter]->Draw();
+			}
 		}
 	}
+	glPopMatrix();
 
 	m_ScoreTextPtr->Draw  (Point2f{ 45,  GetViewPort().height - 20 });
 	m_ScoreNumberPtr->Draw(Point2f{ 100, GetViewPort().height - 20 });

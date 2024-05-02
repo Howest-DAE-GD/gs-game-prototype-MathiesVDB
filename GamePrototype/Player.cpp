@@ -5,18 +5,19 @@
 #include "iostream"
 
 Player::Player() :
-	m_Hunger{ float(MAX_HUNGER) }
+	m_Hunger{ float(MAX_HUNGER) },
+	m_HasTarget{}
 {
 	// nothing to do
 }
 
-void Player::Draw() const
+void Player::Draw(const Rectf& viewPort) const
 {
 	utils::DrawEllipse(m_Position, RADIUS_PLAYER, RADIUS_PLAYER, 3.f);
 
 	//utils::DrawEllipse(m_Position, KILL_RADIUS, KILL_RADIUS, 2.f);
 
-	ShowHunger();
+	ShowHunger(viewPort);
 }
 
 void Player::Update(float elapsedSec, bool isPlaying)
@@ -50,14 +51,12 @@ void Player::Move(float elapsedSec)
 
 void Player::Action(Victim* victim)
 {	
-	
-
 	AddHunger(20.f);
 }
 
-void Player::ShowHunger() const
+void Player::ShowHunger(const Rectf& viewPort) const
 {
-	const Point2f hungerBarLocation{ 250, 10 };
+	const Point2f hungerBarLocation{ m_Position.x - 200, m_Position.y - 240 };
 
 	utils::SetColor(Color4f{ 1.f, 0.f, 0.f, 1.f });
 	utils::FillRect(hungerBarLocation, m_Hunger * 4, 40);

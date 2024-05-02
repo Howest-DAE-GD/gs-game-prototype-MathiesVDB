@@ -8,12 +8,12 @@ class Player : public Entity
 public:
 	explicit Player();
 
-	virtual void Draw() const override;
+	virtual void Draw(const Rectf& viewPort) const;
 	virtual void Move(float elapsedSec) override;
 	virtual void Action(Victim* victim);
 
 	void Update(float elapsedSec, bool isPlaying);
-	void ShowHunger() const;
+	void ShowHunger(const Rectf& viewPort) const;
 
 	void  AddHunger(const float hungerIncrease);
 	float GetHunger() const;
