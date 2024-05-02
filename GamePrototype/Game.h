@@ -42,8 +42,9 @@ private:
 	bool		m_IsAttacking;
 	int			m_Score;
 	std::string m_Score_As_String;
+	Point2f		m_cameraPos;
 
-	GameState m_State;
+	GameState   m_State;
 
 	Victim*		m_VictimPtrArr[MAX_VICTIMS];
 	Player*		m_PlayerPtr;
@@ -65,7 +66,6 @@ private:
 	void CreateVictim(const int index);
 	void DeleteVictim(const int index);
 	void Target(const int index);
-	void CheckAttacking();
 	void RespawnVictim();
 	void ResetGame();
 };

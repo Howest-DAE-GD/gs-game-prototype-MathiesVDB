@@ -14,7 +14,7 @@ void Player::Draw() const
 {
 	utils::DrawEllipse(m_Position, RADIUS_PLAYER, RADIUS_PLAYER, 3.f);
 
-	utils::DrawEllipse(m_Position, KILL_RADIUS, KILL_RADIUS, 2.f);
+	//utils::DrawEllipse(m_Position, KILL_RADIUS, KILL_RADIUS, 2.f);
 
 	ShowHunger();
 }
@@ -106,4 +106,9 @@ bool Player::HasAttacked() const
 void Player::SetPosition(const Point2f& newPos)
 {
 	m_Position = newPos;
+}
+
+Point2f Player::GetPlayerPos() const
+{
+	return m_Position;
 }

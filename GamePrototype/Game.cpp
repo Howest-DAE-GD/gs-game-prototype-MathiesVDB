@@ -92,9 +92,11 @@ void Game::ResetGame()
 
 void Game::Update( float elapsedSec )
 {
-	m_RespawnTimer += elapsedSec;
+	m_cameraPos = Point2f{
+		m_PlayerPtr->GetPlayerPos().x - GetViewPort().width / 2,
+		m_PlayerPtr->GetPlayerPos().y - GetViewPort().height / 2 };
 
-	CheckAttacking();
+	m_RespawnTimer += elapsedSec;
 	
 	m_PlayerPtr->Update(elapsedSec, m_State == GameState::Game);
 
@@ -163,7 +165,13 @@ void Game::Draw( ) const
 
 void Game::GameScreen() const
 {
-	m_PlayerPtr->Draw();
+	glPushMatrix();
+	{
+		glTranslatef(-m_cameraPos.x, -m_cameraPos.y, 0);
+
+		m_PlayerPtr->Draw();
+	}
+	glPopMatrix();
 
 	for (int counter{}; counter < MAX_VICTIMS; ++counter)
 	{
@@ -223,18 +231,6 @@ void Game::Target(const int index)
 	}
 }
 
-void Game::CheckAttacking()
-{
-	const Uint8* pStates = SDL_GetKeyboardState(nullptr);
-
-	bool isAttack{ bool(pStates[SDL_SCANCODE_SPACE]) };
-
-	if (!m_IsAttacking)
-	{
-		m_IsAttacking = isAttack;
-	}
-}
-
 void Game::RespawnVictim()
 {
 	for (int counter{}; counter < MAX_VICTIMS; ++counter)
@@ -252,6 +248,14 @@ void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 	if (e.keysym.sym == SDLK_r && m_State == GameState::GameOver)
 	{
 		ResetGame();
+	}
+	if (e.keysym.sym == SDLK_SPACE)
+	{
+		m_IsAttacking = true;
+	}
+	else
+	{
+		m_IsAttacking = false;
 	}
 }
 

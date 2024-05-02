@@ -23,6 +23,7 @@ public:
 	bool HasAttacked() const;
 
 	void SetPosition(const Point2f& newPos);
+	Point2f GetPlayerPos() const;
 private:
 	//enum Classes
 	enum class Direction
