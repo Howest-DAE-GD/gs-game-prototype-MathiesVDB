@@ -68,7 +68,6 @@ private:
 	void GameOverScreen() const;
 	void CreateVictim(const int index);
 	void DeleteVictim(const int index);
-	void DeleteXP(XP* xpDrop);
 	void Target(const int index);
 	void RespawnVictim();
 	void ResetGame();

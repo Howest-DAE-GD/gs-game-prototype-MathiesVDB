@@ -72,9 +72,13 @@ void Game::Cleanup( )
 		m_SmallFontPtr = nullptr;
 	}
 
-	for (XP* xpDrop : m_XPPtrArr)
+	auto xpIter = m_XPPtrArr.begin();
+	while (xpIter != m_XPPtrArr.end())
 	{
-		DeleteXP(xpDrop);
+		XP* xpDrop = *xpIter;
+
+		delete xpDrop;
+		xpIter = m_XPPtrArr.erase(xpIter);
 	}
 }
 
@@ -143,13 +147,21 @@ void Game::Update( float elapsedSec )
 		}
 	}
 
-	for (XP* xpDrop : m_XPPtrArr)
+	auto xpIter = m_XPPtrArr.begin();
+	while (xpIter != m_XPPtrArr.end())
 	{
+		XP* xpDrop = *xpIter;
+
 		if (utils::IsOverlapping(xpDrop->GetXPHitbox(), m_PlayerPtr->GetPlayerHitbox()))
 		{
 			m_PlayerPtr->AddXP(xpDrop);
 
-			DeleteXP(xpDrop);
+			delete xpDrop;
+			xpIter = m_XPPtrArr.erase(xpIter);
+		}
+		else
+		{
+			++xpIter;
 		}
 	}
 
@@ -257,12 +269,6 @@ void Game::DeleteVictim(const int index)
 		delete m_VictimPtrArr[index];
 		m_VictimPtrArr[index] = nullptr;
 	}
-}
-
-void Game::DeleteXP(XP* xpDrop)
-{
-	delete xpDrop;
-	xpDrop = nullptr;
 }
 
 void Game::Target(const int index)
