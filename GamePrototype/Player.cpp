@@ -1,33 +1,47 @@
 #include "pch.h"
 #include "Player.h"
 #include "Victim.h"
+#include "XP.h"
 #include "utils.h"
 #include "iostream"
 
 Player::Player() :
-	m_Hunger{ float(MAX_HUNGER) },
-	m_HasTarget{}
+	m_Health{ float(MAX_HEALTH) },
+	m_Exp{},
+	m_HasTarget{},
+	m_Damage{10},
+	m_AttackCooldown{},
+	m_CanAttack{true},
+	m_IsLevelUp{false}
 {
 	// nothing to do
 }
 
-void Player::Draw(const Rectf& viewPort) const
+void Player::Draw(const Point2f& cameraPos) const
 {
 	utils::DrawEllipse(m_Position, RADIUS_PLAYER, RADIUS_PLAYER, 3.f);
 
 	//utils::DrawEllipse(m_Position, KILL_RADIUS, KILL_RADIUS, 2.f);
 
-	ShowHunger(viewPort);
+	ShowStats(cameraPos);
 }
 
 void Player::Update(float elapsedSec, bool isPlaying)
 {
+	m_AttackCooldown += elapsedSec;
+
+	if (m_AttackCooldown >= ATTACK_COOLDOWN)
+	{
+		m_CanAttack = true;
+	}
+	else
+	{
+		m_CanAttack = false;
+	}
+
 	if (isPlaying)
 	{
 		Move(elapsedSec);
-
-		float hungerChange{ HUNGER_DECREASE * elapsedSec };
-		m_Hunger -= hungerChange;
 	}
 }
 
@@ -51,39 +65,76 @@ void Player::Move(float elapsedSec)
 
 void Player::Action(Victim* victim)
 {	
-	AddHunger(20.f);
+	victim->TakeDamage(m_Damage);
 }
 
-void Player::ShowHunger(const Rectf& viewPort) const
+void Player::ShowStats(const Point2f& cameraPos) const
 {
-	const Point2f hungerBarLocation{ m_Position.x - 200, m_Position.y - 240 };
-
+	const Point2f xpBarLocation	   { cameraPos.x		, cameraPos.y	   };
+	const Point2f healthBarLocation{ cameraPos.x + 690	, cameraPos.y + 20 };
+	
+	//Draw health bar
 	utils::SetColor(Color4f{ 1.f, 0.f, 0.f, 1.f });
-	utils::FillRect(hungerBarLocation, m_Hunger * 4, 40);
+	utils::FillRect(healthBarLocation, m_Health * 2, 15);
 
+	//Draw outline health bar
 	utils::SetColor(Color4f{ 1.f, 1.f, 1.f, 1.f });
+	utils::DrawRect(healthBarLocation, 200, 15, 3.f);
 
-	utils::DrawRect(hungerBarLocation, 400, 40, 3.f);
+	//Draw XP bar
+	utils::SetColor(Color4f{ 0.f, 1.f, 0.f, 1.f });
+	utils::FillRect(xpBarLocation, m_Exp * 9, 10);
+	utils::SetColor(Color4f{ 1.f, 1.f, 1.f, 1.f });
 }
 
-void Player::AddHunger(const float hungerIncrease)
+void Player::AddHealth(const float healthIncrease)
 {
-	m_Hunger += hungerIncrease;
+	m_Health += healthIncrease;
 
-	if (m_Hunger >= MAX_HUNGER)
+	if (m_Health >= MAX_HEALTH)
 	{
-		m_Hunger = MAX_HUNGER;
+		m_Health = MAX_HEALTH;
 	}
 }
 
-float Player::GetHunger() const
+float Player::GetHealth() const
 {
-	return m_Hunger;
+	return m_Health;
 }
 
-int Player::GetMaxHunger() const
+int Player::GetMaxHealth() const
 {
-	return MAX_HUNGER;
+	return MAX_HEALTH;
+}
+
+void Player::AddXP(XP* xpDrop)
+{
+	m_Exp += xpDrop->GetValue();
+
+	if (m_Exp >= XP_THRESHHOLD)
+	{
+		ToggleLevelUp();
+	}
+}
+
+float Player::GetXP() const
+{
+	return m_Exp;
+}
+
+int Player::GetMaxXP() const
+{
+	return XP_THRESHHOLD;
+}
+
+bool Player::IsLevelUp() const
+{
+	return m_IsLevelUp;
+}
+
+void Player::ToggleLevelUp()
+{
+	m_IsLevelUp = !m_IsLevelUp;
 }
 
 bool Player::IsClose(Victim* victim) const
@@ -102,6 +153,11 @@ bool Player::HasAttacked() const
 	return false;
 }
 
+bool Player::CanAttack() const
+{
+	return m_CanAttack;
+}
+
 void Player::SetPosition(const Point2f& newPos)
 {
 	m_Position = newPos;
@@ -110,4 +166,10 @@ void Player::SetPosition(const Point2f& newPos)
 Point2f Player::GetPlayerPos() const
 {
 	return m_Position;
+}
+
+Circlef Player::GetPlayerHitbox() const
+{
+	Circlef playerHitbox{ m_Position, (float)RADIUS_PLAYER };
+	return playerHitbox;
 }

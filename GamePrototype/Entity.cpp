@@ -20,3 +20,18 @@ void Entity::Action()
 {
 
 }
+
+int Entity::GetEntityKillScore() const
+{
+	return 0;
+}
+
+float Entity::GetHealth() const
+{
+	return 0.0f;
+}
+
+void Entity::TakeDamage(const float takenDamage)
+{
+	
+}

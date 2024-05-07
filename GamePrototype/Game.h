@@ -1,9 +1,11 @@
 #pragma once
 #include "BaseGame.h"
+#include "vector"
 
 class Player;
 class Victim;
 class Text;
+class XP;
 
 class Game : public BaseGame
 {
@@ -34,7 +36,7 @@ private:
 	// Enum Class
 	enum class GameState
 	{
-		Start, Game, GameOver
+		Start, Game, GameOver, Tutorial, Upgrade
 	};
 
 	// Private 
@@ -43,6 +45,7 @@ private:
 	int			m_Score;
 	std::string m_Score_As_String;
 	Point2f		m_cameraPos;
+	std::vector<XP*> m_XPPtrArr;
 
 	GameState   m_State;
 
@@ -65,6 +68,7 @@ private:
 	void GameOverScreen() const;
 	void CreateVictim(const int index);
 	void DeleteVictim(const int index);
+	void DeleteXP(XP* xpDrop);
 	void Target(const int index);
 	void RespawnVictim();
 	void ResetGame();

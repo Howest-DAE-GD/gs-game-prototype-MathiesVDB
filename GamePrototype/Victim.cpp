@@ -8,14 +8,15 @@ Victim::Victim() :
 	m_MoveTimer	{},
 	m_Targetable{ false },
 	m_IsMoving	{ false },
-	m_RandomDirection{}
+	m_RandomDirection{},
+	m_Health{MAX_HEALTH}
 {
 	m_Position = Point2f{ float(rand() % 800), float(rand() % 500) };
 }
 
 void Victim::Draw() const
 {
-	if (m_Targetable)
+	if (m_HasTakenDamage)
 	{
 		utils::SetColor(Color4f{ 1.f, 0.f, 0.f, 1.f });
 	}
@@ -23,9 +24,20 @@ void Victim::Draw() const
 	{
 		utils::SetColor(Color4f{ 1.f, 1.f, 1.f, 1.f });
 	}
+
 	utils::DrawRect(m_Position, VICTIM_SIZE, VICTIM_SIZE);
 
 	utils::SetColor(Color4f{ 1.f, 1.f, 1.f, 1.f });
+
+	//Show health if not 100
+	if(m_Health != MAX_HEALTH)
+	{
+		utils::SetColor(Color4f{ 1.f, 0.f, 0.f, 1.f });
+		utils::FillRect(Point2f{ m_Position.x - 10, m_Position.y + 30 }, (m_Health / 40) * 100, 5);
+
+		utils::SetColor(Color4f{ 1.f, 1.f, 1.f, 1.f });
+		utils::DrawRect(Point2f{ m_Position.x - 10, m_Position.y + 30 }, 40, 5);
+	}
 }
 
 void Victim::Move(float elapsedSec)
@@ -51,11 +63,30 @@ void Victim::Move(float elapsedSec)
 		if (m_RandomDirection == 2)	m_Position.y += (SPEED - 100) * elapsedSec;
 		if (m_RandomDirection == 3)	m_Position.y -= (SPEED - 100) * elapsedSec;
 	}
+
+	m_HasTakenDamage = false;
 }
 
 void Victim::Action()
 {
 
+}
+
+int Victim::GetEntityKillScore() const
+{
+	return KILL_SCORE;
+}
+
+float Victim::GetHealth() const
+{
+	return m_Health;
+}
+
+void Victim::TakeDamage(const float takenDamage)
+{
+	m_Health -= takenDamage;
+
+	m_HasTakenDamage = true;
 }
 
 Rectf Victim::GetVictimRect()

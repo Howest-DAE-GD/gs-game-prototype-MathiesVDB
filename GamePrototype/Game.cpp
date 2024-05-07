@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "iostream"
 #include "Text.h"
+#include "XP.h"
 
 Game::Game(const Window& window)
 	: BaseGame{ window },
@@ -15,7 +16,8 @@ Game::Game(const Window& window)
 	m_GameOverTextPtr{},
 	m_Score{},
 	m_Score_As_String{"0"},
-	m_FinalScoreTextPtr{}
+	m_FinalScoreTextPtr{},
+	m_XPPtrArr{}
 {
 	Initialize();
 }
@@ -70,6 +72,10 @@ void Game::Cleanup( )
 		m_SmallFontPtr = nullptr;
 	}
 
+	for (XP* xpDrop : m_XPPtrArr)
+	{
+		DeleteXP(xpDrop);
+	}
 }
 
 void Game::ResetGame()
@@ -77,7 +83,7 @@ void Game::ResetGame()
 	m_State = GameState::Start;
 	m_Score = 0;
 	m_PlayerPtr->SetPosition(Point2f{ 450, 250 });
-	m_PlayerPtr->AddHunger(m_PlayerPtr->GetMaxHunger());
+	m_PlayerPtr->AddHealth(m_PlayerPtr->GetMaxHealth());
 
 	for (int counter{}; counter < MAX_VICTIMS; ++counter)
 	{
@@ -87,6 +93,12 @@ void Game::ResetGame()
 	for (int counter{}; counter <= 5; ++counter)
 	{
 		CreateVictim(counter);
+	}
+
+	for (XP* xpDrop : m_XPPtrArr)
+	{
+		delete xpDrop;
+		xpDrop = nullptr;
 	}
 }
 
@@ -100,6 +112,8 @@ void Game::Update( float elapsedSec )
 	
 	m_PlayerPtr->Update(elapsedSec, m_State == GameState::Game);
 
+	bool hasAttacked{ false };
+
 	for (int counter{}; counter < MAX_VICTIMS; ++counter)
 	{
 		if (m_VictimPtrArr[counter] != 0)
@@ -112,13 +126,38 @@ void Game::Update( float elapsedSec )
 			{
 				m_PlayerPtr->Action(m_VictimPtrArr[counter]);
 
-				DeleteVictim(counter);
+				if (m_VictimPtrArr[counter]->GetHealth() <= 0)
+				{
+					m_Score += m_VictimPtrArr[counter]->GetEntityKillScore();
+					DeleteVictim(counter);
+				}
+				
+				hasAttacked = true;
 
-				++m_Score;
-
-				return;
+				if (hasAttacked)
+				{
+					m_IsAttacking = false;
+					break;
+				}
 			}
 		}
+	}
+
+	for (XP* xpDrop : m_XPPtrArr)
+	{
+		if (utils::IsOverlapping(xpDrop->GetXPHitbox(), m_PlayerPtr->GetPlayerHitbox()))
+		{
+			m_PlayerPtr->AddXP(xpDrop);
+
+			DeleteXP(xpDrop);
+		}
+	}
+
+	if (m_PlayerPtr->IsLevelUp())
+	{
+		m_State = GameState::Upgrade;
+
+		m_PlayerPtr->ToggleLevelUp();
 	}
 
 	if (m_RespawnTimer >= RESPAWN_TIME_VICTIMS)
@@ -128,7 +167,7 @@ void Game::Update( float elapsedSec )
 		m_RespawnTimer = 0;
 	}
 
-	if (m_PlayerPtr->GetHunger() <= 0)
+	if (m_PlayerPtr->GetHealth() <= 0)
 	{
 		m_State = GameState::GameOver;
 	}
@@ -154,7 +193,7 @@ void Game::Draw( ) const
 		break;
 	case GameState::Game:
 		GameScreen();
-		break;
+   		break;
 	case GameState::GameOver:
 		GameOverScreen();
 		break;
@@ -169,7 +208,7 @@ void Game::GameScreen() const
 	{
 		glTranslatef(-m_cameraPos.x, -m_cameraPos.y, 0);
 
-		m_PlayerPtr->Draw(GetViewPort());
+		m_PlayerPtr->Draw(m_cameraPos);
 
 		for (int counter{}; counter < MAX_VICTIMS; ++counter)
 		{
@@ -177,6 +216,11 @@ void Game::GameScreen() const
 			{
 				m_VictimPtrArr[counter]->Draw();
 			}
+		}
+
+		for (XP* xpDrop : m_XPPtrArr)
+		{
+			xpDrop->Draw();
 		}
 	}
 	glPopMatrix();
@@ -208,9 +252,17 @@ void Game::DeleteVictim(const int index)
 {
 	if (m_VictimPtrArr[index] != 0)
 	{
+		m_XPPtrArr.push_back(new XP(m_VictimPtrArr[index]->GetVictimPosition(), Type::Small));
+
 		delete m_VictimPtrArr[index];
 		m_VictimPtrArr[index] = nullptr;
 	}
+}
+
+void Game::DeleteXP(XP* xpDrop)
+{
+	delete xpDrop;
+	xpDrop = nullptr;
 }
 
 void Game::Target(const int index)
@@ -249,7 +301,7 @@ void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 	{
 		ResetGame();
 	}
-	if (e.keysym.sym == SDLK_SPACE)
+	if (e.keysym.sym == SDLK_SPACE && m_PlayerPtr->CanAttack())
 	{
 		m_IsAttacking = true;
 	}

@@ -19,6 +19,12 @@
     <Filter Include="Text Files">
       <UniqueIdentifier>{18766729-44e1-483c-af2b-aca278aff08f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Button files">
+      <UniqueIdentifier>{4015a828-ca8b-4db0-a02d-549f4aaf1f39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XP Files">
+      <UniqueIdentifier>{1888d514-d088-4db0-aec6-6a3587be3069}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -42,6 +48,15 @@
     <ClCompile Include="Text.cpp">
       <Filter>Text Files</Filter>
     </ClCompile>
+    <ClCompile Include="Police.cpp">
+      <Filter>Entity Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Button files</Filter>
+    </ClCompile>
+    <ClCompile Include="XP.cpp">
+      <Filter>XP Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -61,6 +76,15 @@
     </ClInclude>
     <ClInclude Include="Text.h">
       <Filter>Text Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Police.h">
+      <Filter>Entity Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Button files</Filter>
+    </ClInclude>
+    <ClInclude Include="XP.h">
+      <Filter>XP Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
