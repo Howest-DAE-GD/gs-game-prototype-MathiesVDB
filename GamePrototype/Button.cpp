@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "Button.h"
 
-Button::Button(Point2f position, std::string text, Color4f textColor, TTF_Font* fontPath) :m_TextColor(textColor), m_Text(text), m_FontPtr(fontPath), m_Position(position)
+Button::Button(Point2f position, std::string text, Color4f textColor, TTF_Font* fontPath, int btnValue) :
+	m_TextColor(textColor), m_Text(text), m_FontPtr(fontPath), m_Position(position), m_Value{btnValue}
 {
 	m_TextTexturePtr = new Texture(m_Text, m_FontPtr, m_TextColor);
 
@@ -42,6 +43,11 @@ void Button::ProcessMouseUpEvent(const SDL_MouseButtonEvent& e)
 
 bool Button::IsPressed()
 {
-	if (m_Pressed == true) return true;
+	return m_Pressed;
+}
+
+int Button::GetValue()
+{
+	return m_Value;
 }
 

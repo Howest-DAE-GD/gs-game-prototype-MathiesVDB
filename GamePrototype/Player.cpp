@@ -137,6 +137,22 @@ void Player::ToggleLevelUp()
 	m_IsLevelUp = !m_IsLevelUp;
 }
 
+void Player::Upgrade(const int upgradeIndex) // index: 0 = Attack speed upgrade, 1 = Damage upgrade, 2 = Health upgrade
+{
+	switch(upgradeIndex)
+	{
+	case 0:
+		m_AttackCooldown -= UPGRADE_INCREMENT;
+		break;
+	case 1:
+		m_Damage *= UPGRADE_INCREMENT;
+		break;
+	case 2:
+		m_Health *= UPGRADE_INCREMENT;
+		break;
+	}
+}
+
 bool Player::IsClose(Victim* victim) const
 {
 	Circlef playerKillRadius{ m_Position, (float)KILL_RADIUS };

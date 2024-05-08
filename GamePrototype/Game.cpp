@@ -6,6 +6,7 @@
 #include "iostream"
 #include "Text.h"
 #include "XP.h"
+#include "Button.h"
 
 Game::Game(const Window& window)
 	: BaseGame{ window },
@@ -17,7 +18,7 @@ Game::Game(const Window& window)
 	m_Score{},
 	m_Score_As_String{"0"},
 	m_FinalScoreTextPtr{},
-	m_XPPtrArr{}
+	m_XPPtrVec{}
 {
 	Initialize();
 }
@@ -32,6 +33,10 @@ void Game::Initialize( )
 	m_BigFontPtr	= TTF_OpenFont("Jersey15-Regular.ttf", 120);
 	m_SmallFontPtr	= TTF_OpenFont("Jersey15-Regular.ttf", 30);
 	m_PlayerPtr		= new Player();
+
+	m_UpgradeBtnPtrArr[0] = new Button(Point2f{ m_cameraPos.x + 100, m_cameraPos.y + 300 }, "Health Potion", Color4f{ 1.f, 0.f, 0.f, 1.f }, m_SmallFontPtr, 0);
+	m_UpgradeBtnPtrArr[1] = new Button(Point2f{ m_cameraPos.x + 300, m_cameraPos.y + 300 }, "Damage Potion", Color4f{ 0.9f, 0.4f, 0.1f, 1.f }, m_SmallFontPtr, 1);
+	m_UpgradeBtnPtrArr[2] = new Button(Point2f{ m_cameraPos.x + 500, m_cameraPos.y + 300 }, "Attack Speed Potion", Color4f{ 0.3f, 0.3f, 1.f, 1.f }, m_SmallFontPtr, 2);
 
 	ResetGame();
 
@@ -72,13 +77,19 @@ void Game::Cleanup( )
 		m_SmallFontPtr = nullptr;
 	}
 
-	auto xpIter = m_XPPtrArr.begin();
-	while (xpIter != m_XPPtrArr.end())
+	auto xpIter = m_XPPtrVec.begin();
+	while (xpIter != m_XPPtrVec.end())
 	{
 		XP* xpDrop = *xpIter;
 
 		delete xpDrop;
-		xpIter = m_XPPtrArr.erase(xpIter);
+		xpIter = m_XPPtrVec.erase(xpIter);
+	}
+
+	for (int counter{}; counter < NR_OF_UPGRADES; ++counter)
+	{
+		delete m_UpgradeBtnPtrArr[counter];
+		m_UpgradeBtnPtrArr[counter] = nullptr;
 	}
 }
 
@@ -99,7 +110,7 @@ void Game::ResetGame()
 		CreateVictim(counter);
 	}
 
-	for (XP* xpDrop : m_XPPtrArr)
+	for (XP* xpDrop : m_XPPtrVec)
 	{
 		delete xpDrop;
 		xpDrop = nullptr;
@@ -147,8 +158,8 @@ void Game::Update( float elapsedSec )
 		}
 	}
 
-	auto xpIter = m_XPPtrArr.begin();
-	while (xpIter != m_XPPtrArr.end())
+	auto xpIter = m_XPPtrVec.begin();
+	while (xpIter != m_XPPtrVec.end())
 	{
 		XP* xpDrop = *xpIter;
 
@@ -157,7 +168,7 @@ void Game::Update( float elapsedSec )
 			m_PlayerPtr->AddXP(xpDrop);
 
 			delete xpDrop;
-			xpIter = m_XPPtrArr.erase(xpIter);
+			xpIter = m_XPPtrVec.erase(xpIter);
 		}
 		else
 		{
@@ -170,6 +181,18 @@ void Game::Update( float elapsedSec )
 		m_State = GameState::Upgrade;
 
 		m_PlayerPtr->ToggleLevelUp();
+	}
+
+	int counter{};
+	for (Button* Btn : m_UpgradeBtnPtrArr)
+	{
+		if (m_UpgradeBtnPtrArr[counter]->IsPressed())
+		{
+			m_PlayerPtr->Upgrade(m_UpgradeBtnPtrArr[counter]->GetValue());
+
+			std::cout << m_PlayerPtr->GetHealth() << std::endl;
+		}
+		++counter;
 	}
 
 	if (m_RespawnTimer >= RESPAWN_TIME_VICTIMS)
@@ -203,9 +226,15 @@ void Game::Draw( ) const
 	case GameState::Start:
 		StartScreen();
 		break;
+	case GameState::Tutorial:
+		TutorialScreen();
+		break;
 	case GameState::Game:
 		GameScreen();
    		break;
+	case GameState::Upgrade:
+		UpgradeScreen();
+		break;
 	case GameState::GameOver:
 		GameOverScreen();
 		break;
@@ -230,7 +259,7 @@ void Game::GameScreen() const
 			}
 		}
 
-		for (XP* xpDrop : m_XPPtrArr)
+		for (XP* xpDrop : m_XPPtrVec)
 		{
 			xpDrop->Draw();
 		}
@@ -252,6 +281,19 @@ void Game::GameOverScreen() const
 	m_FinalScoreTextPtr->Draw(Point2f{ GetViewPort().width / 2, GetViewPort().height / 2 + 40 });
 }
 
+void Game::UpgradeScreen() const
+{
+	for (int counter{}; counter < NR_OF_UPGRADES; ++counter)
+	{
+		m_UpgradeBtnPtrArr[counter]->Draw();
+	}
+}
+
+void Game::TutorialScreen() const
+{
+
+}
+
 void Game::CreateVictim(const int index)
 {
 	if (m_VictimPtrArr[index] == 0)
@@ -264,7 +306,7 @@ void Game::DeleteVictim(const int index)
 {
 	if (m_VictimPtrArr[index] != 0)
 	{
-		m_XPPtrArr.push_back(new XP(m_VictimPtrArr[index]->GetVictimPosition(), Type::Small));
+		m_XPPtrVec.push_back(new XP(m_VictimPtrArr[index]->GetVictimPosition(), Type::Small));
 
 		delete m_VictimPtrArr[index];
 		m_VictimPtrArr[index] = nullptr;
@@ -323,15 +365,28 @@ void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
 
 void Game::ProcessMouseMotionEvent( const SDL_MouseMotionEvent& e )
 {
+	for (int counter{}; counter < NR_OF_UPGRADES; ++counter)
+	{
+		m_UpgradeBtnPtrArr[counter]->ProcessMouseMotionEvent(e);
+	}
 }
 
 void Game::ProcessMouseDownEvent( const SDL_MouseButtonEvent& e )
 {
 	m_State = GameState::Game;
+
+	for (int counter{}; counter < NR_OF_UPGRADES; ++counter)
+	{
+		m_UpgradeBtnPtrArr[counter]->ProcessMouseDownEvent(e);
+	}
 }
 
 void Game::ProcessMouseUpEvent( const SDL_MouseButtonEvent& e )
 {
+	for (int counter{}; counter < NR_OF_UPGRADES; ++counter)
+	{
+		m_UpgradeBtnPtrArr[counter]->ProcessMouseUpEvent(e);
+	}
 }
 
 void Game::ClearBackground( ) const

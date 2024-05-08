@@ -6,7 +6,7 @@ using namespace utils;
 class Button
 {
 public:
-	Button(Point2f position, std::string text, Color4f textColor, TTF_Font* fontPath);
+	Button(Point2f position, std::string text, Color4f textColor, TTF_Font* fontPath, int btnValue = -1);
 	~Button();
 
 	void Draw();
@@ -14,8 +14,10 @@ public:
 	void ProcessMouseDownEvent(const SDL_MouseButtonEvent& e);
 	void ProcessMouseUpEvent(const SDL_MouseButtonEvent& e);
 	bool IsPressed();
+	int  GetValue();
 private:
 
+	int  m_Value;
 	bool m_Hover{ false };
 	bool m_Pressed{ false };
 

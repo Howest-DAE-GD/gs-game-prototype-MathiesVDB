@@ -25,6 +25,7 @@ public:
 	int	  GetMaxXP() const;
 	bool  IsLevelUp() const;
 	void  ToggleLevelUp();
+	void  Upgrade(const int upgradeIndex);
 
 	bool IsClose(Victim* victim) const;
 	bool HasAttacked() const;

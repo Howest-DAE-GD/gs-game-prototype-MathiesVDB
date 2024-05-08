@@ -6,6 +6,7 @@ class Player;
 class Victim;
 class Text;
 class XP;
+class Button;
 
 class Game : public BaseGame
 {
@@ -30,8 +31,9 @@ public:
 
 private:
 	//Constants
-	static const int		MAX_VICTIMS{ 15 };
-	static constexpr float	RESPAWN_TIME_VICTIMS{ 1.5f };
+	static const int		MAX_VICTIMS			{ 15	};
+	static constexpr float	RESPAWN_TIME_VICTIMS{  1.5f };
+	static const int		NR_OF_UPGRADES		{  3    };
 
 	// Enum Class
 	enum class GameState
@@ -45,11 +47,12 @@ private:
 	int			m_Score;
 	std::string m_Score_As_String;
 	Point2f		m_cameraPos;
-	std::vector<XP*> m_XPPtrArr;
+	std::vector<XP*> m_XPPtrVec;
 
 	GameState   m_State;
 
 	Victim*		m_VictimPtrArr[MAX_VICTIMS];
+	Button*		m_UpgradeBtnPtrArr[NR_OF_UPGRADES];
 	Player*		m_PlayerPtr;
 	TTF_Font*	m_BigFontPtr;
 	TTF_Font*	m_SmallFontPtr;
@@ -66,6 +69,8 @@ private:
 	void GameScreen() const;
 	void StartScreen() const;
 	void GameOverScreen() const;
+	void UpgradeScreen() const;
+	void TutorialScreen() const;
 	void CreateVictim(const int index);
 	void DeleteVictim(const int index);
 	void Target(const int index);
