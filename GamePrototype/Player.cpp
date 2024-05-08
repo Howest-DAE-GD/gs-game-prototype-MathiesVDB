@@ -6,13 +6,16 @@
 #include "iostream"
 
 Player::Player() :
-	m_Health{ float(MAX_HEALTH) },
+	m_MaxHealth{ 100 },
+	m_Health{ 10 },
 	m_Exp{},
 	m_HasTarget{},
 	m_Damage{10},
 	m_AttackCooldown{},
+	m_RegenCooldown{},
 	m_CanAttack{true},
-	m_IsLevelUp{false}
+	m_IsLevelUp{false},
+	m_HealthRegen{0.1f}
 {
 	// nothing to do
 }
@@ -29,6 +32,7 @@ void Player::Draw(const Point2f& cameraPos) const
 void Player::Update(float elapsedSec, bool isPlaying)
 {
 	m_AttackCooldown += elapsedSec;
+	m_RegenCooldown  += elapsedSec;
 
 	if (m_AttackCooldown >= ATTACK_COOLDOWN)
 	{
@@ -37,6 +41,12 @@ void Player::Update(float elapsedSec, bool isPlaying)
 	else
 	{
 		m_CanAttack = false;
+	}
+
+	if (m_RegenCooldown >= REGEN_COOLDOWN)
+	{
+		AddHealth(m_HealthRegen);
+		m_RegenCooldown = 0;
 	}
 
 	if (isPlaying)
@@ -91,9 +101,9 @@ void Player::AddHealth(const float healthIncrease)
 {
 	m_Health += healthIncrease;
 
-	if (m_Health >= MAX_HEALTH)
+	if (m_Health >= m_MaxHealth)
 	{
-		m_Health = MAX_HEALTH;
+		m_Health = m_MaxHealth;
 	}
 }
 
@@ -104,12 +114,12 @@ float Player::GetHealth() const
 
 int Player::GetMaxHealth() const
 {
-	return MAX_HEALTH;
+	return m_MaxHealth;
 }
 
-void Player::AddXP(XP* xpDrop)
+void Player::AddXP(int xpIncrease)
 {
-	m_Exp += xpDrop->GetValue();
+	m_Exp += xpIncrease;
 
 	if (m_Exp >= XP_THRESHHOLD)
 	{
@@ -142,13 +152,14 @@ void Player::Upgrade(const int upgradeIndex) // index: 0 = Attack speed upgrade,
 	switch(upgradeIndex)
 	{
 	case 0:
-		m_AttackCooldown -= UPGRADE_INCREMENT;
+		m_MaxHealth *= UPGRADE_INCREMENT;
 		break;
 	case 1:
 		m_Damage *= UPGRADE_INCREMENT;
+		std::cout << m_Damage << std::endl;
 		break;
 	case 2:
-		m_Health *= UPGRADE_INCREMENT;
+		m_HealthRegen *= UPGRADE_INCREMENT;
 		break;
 	}
 }
@@ -164,14 +175,14 @@ bool Player::IsClose(Victim* victim) const
 	return false;
 }
 
-bool Player::HasAttacked() const
-{
-	return false;
-}
-
 bool Player::CanAttack() const
 {
 	return m_CanAttack;
+}
+
+void Player::ResetAttackCooldown()
+{
+	m_AttackCooldown = 0;
 }
 
 void Player::SetPosition(const Point2f& newPos)

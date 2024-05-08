@@ -20,7 +20,7 @@ public:
 	float GetHealth() const;
 	int	  GetMaxHealth() const;
 
-	void  AddXP(XP* xpDrop);
+	void  AddXP(int xpIncrease);
 	float GetXP() const;
 	int	  GetMaxXP() const;
 	bool  IsLevelUp() const;
@@ -28,8 +28,8 @@ public:
 	void  Upgrade(const int upgradeIndex);
 
 	bool IsClose(Victim* victim) const;
-	bool HasAttacked() const;
 	bool CanAttack() const;
+	void ResetAttackCooldown();
 
 	void SetPosition(const Point2f& newPos);
 	Point2f GetPlayerPos() const;
@@ -43,17 +43,20 @@ private:
 	};
 
 	//Constants
-	const float UPGRADE_INCREMENT{   0.1f };
-	const float ATTACK_COOLDOWN	 {	 1.f  };
+	const float UPGRADE_INCREMENT{   1.1f };
+	const float ATTACK_COOLDOWN	 {	 0.5f };
+	const float REGEN_COOLDOWN   {   2.f  };
 	const int   RADIUS_PLAYER	 {  15    };
-	const int   MAX_HEALTH		 { 100    };
 	const int   XP_THRESHHOLD	 { 100    };
 	const int	KILL_RADIUS		 {  35    };
 
 	//Variables
+	float m_MaxHealth;
 	float m_Health;
 	float m_Exp;
+	float m_HealthRegen;
 	float m_AttackCooldown;
+	float m_RegenCooldown;
 	int	  m_Damage;
 	bool  m_CanAttack;
 	bool  m_HasTarget;

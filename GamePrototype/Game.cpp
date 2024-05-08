@@ -36,7 +36,7 @@ void Game::Initialize( )
 
 	m_UpgradeBtnPtrArr[0] = new Button(Point2f{ m_cameraPos.x + 100, m_cameraPos.y + 300 }, "Health Potion", Color4f{ 1.f, 0.f, 0.f, 1.f }, m_SmallFontPtr, 0);
 	m_UpgradeBtnPtrArr[1] = new Button(Point2f{ m_cameraPos.x + 300, m_cameraPos.y + 300 }, "Damage Potion", Color4f{ 0.9f, 0.4f, 0.1f, 1.f }, m_SmallFontPtr, 1);
-	m_UpgradeBtnPtrArr[2] = new Button(Point2f{ m_cameraPos.x + 500, m_cameraPos.y + 300 }, "Attack Speed Potion", Color4f{ 0.3f, 0.3f, 1.f, 1.f }, m_SmallFontPtr, 2);
+	m_UpgradeBtnPtrArr[2] = new Button(Point2f{ m_cameraPos.x + 500, m_cameraPos.y + 300 }, "Health Regen Potion", Color4f{ 0.3f, 0.3f, 1.f, 1.f }, m_SmallFontPtr, 2);
 
 	ResetGame();
 
@@ -98,7 +98,7 @@ void Game::ResetGame()
 	m_State = GameState::Start;
 	m_Score = 0;
 	m_PlayerPtr->SetPosition(Point2f{ 450, 250 });
-	m_PlayerPtr->AddHealth(m_PlayerPtr->GetMaxHealth());
+	//m_PlayerPtr->AddHealth(m_PlayerPtr->GetMaxHealth());
 
 	for (int counter{}; counter < MAX_VICTIMS; ++counter)
 	{
@@ -165,7 +165,7 @@ void Game::Update( float elapsedSec )
 
 		if (utils::IsOverlapping(xpDrop->GetXPHitbox(), m_PlayerPtr->GetPlayerHitbox()))
 		{
-			m_PlayerPtr->AddXP(xpDrop);
+			m_PlayerPtr->AddXP(xpDrop->GetValue());
 
 			delete xpDrop;
 			xpIter = m_XPPtrVec.erase(xpIter);
@@ -180,6 +180,7 @@ void Game::Update( float elapsedSec )
 	{
 		m_State = GameState::Upgrade;
 
+		m_PlayerPtr->AddXP(-m_PlayerPtr->GetXP());
 		m_PlayerPtr->ToggleLevelUp();
 	}
 
@@ -189,8 +190,6 @@ void Game::Update( float elapsedSec )
 		if (m_UpgradeBtnPtrArr[counter]->IsPressed())
 		{
 			m_PlayerPtr->Upgrade(m_UpgradeBtnPtrArr[counter]->GetValue());
-
-			std::cout << m_PlayerPtr->GetHealth() << std::endl;
 		}
 		++counter;
 	}
@@ -352,6 +351,7 @@ void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 	if (e.keysym.sym == SDLK_SPACE && m_PlayerPtr->CanAttack())
 	{
 		m_IsAttacking = true;
+		m_PlayerPtr->ResetAttackCooldown();
 	}
 	else
 	{
