@@ -3,13 +3,12 @@
 #include "utils.h"
 #include "BaseGame.h"
 #include "iostream"
+#include "Player.h"
 
-Victim::Victim() :
-	m_MoveTimer	{},
+Victim::Victim(Player* playerPtr) :
 	m_Targetable{ false },
-	m_IsMoving	{ false },
-	m_RandomDirection{},
-	m_Health{MAX_HEALTH}
+	m_Health{MAX_HEALTH},
+	m_PlayerPtr{playerPtr}
 {
 	m_Position = Point2f{ float(rand() % 800), float(rand() % 500) };
 }
@@ -40,36 +39,20 @@ void Victim::Draw() const
 	}
 }
 
-void Victim::Move(float elapsedSec)
+void Victim::Move(float elapsedSec, const Point2f& target)
 {
-	m_MoveTimer += elapsedSec;
-	if (m_MoveTimer >= WANDER_TIMER)
-	{
-		if (m_IsMoving)
-		{
-			m_MoveTimer = -1.f;
-		}
-		else
-		{
-			m_MoveTimer = (rand() % 10) / 10;
-		}
-		m_IsMoving = !m_IsMoving;
-		m_RandomDirection = rand() % 4;
-	}
-	if(m_IsMoving)
-	{
-		if (m_RandomDirection == 0)	m_Position.x -= (SPEED - 100) * elapsedSec;
-		if (m_RandomDirection == 1)	m_Position.x += (SPEED - 100) * elapsedSec;
-		if (m_RandomDirection == 2)	m_Position.y += (SPEED - 100) * elapsedSec;
-		if (m_RandomDirection == 3)	m_Position.y -= (SPEED - 100) * elapsedSec;
-	}
+	Vector2f velocity{ target.x - m_Position.x, target.y - m_Position.y };
+	m_Position += velocity.Normalized() * SPEED * elapsedSec;
 
 	m_HasTakenDamage = false;
 }
 
 void Victim::Action()
 {
-
+	if (utils::IsPointInCircle(m_PlayerPtr->GetPlayerPos(), Circlef{ m_Position, DAMAGE_RANGE }))
+	{
+		m_PlayerPtr->TakeDamage(DAMAGE);
+	}
 }
 
 int Victim::GetEntityKillScore() const

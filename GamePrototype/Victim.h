@@ -1,18 +1,20 @@
 #pragma once
 #include "Entity.h"
 
-class Victim : public Entity
+class Player;
+
+class Victim final: public Entity
 {
 public:
-	explicit	 Victim();
+	explicit	 Victim(Player* playerPtr);
 
-	virtual void Draw() const override;
-	virtual void Move(float elapsedSec) override;
-	virtual void Action() override;
+	void Draw() const override;
+	void Move(float elapsedSec, const Point2f& target) override;
+	void Action() override;
 
-	virtual int   GetEntityKillScore() const override;
-	virtual float GetHealth() const override;
-	virtual void  TakeDamage(const float takenDamage) override;
+	int   GetEntityKillScore() const override;
+	float GetHealth() const override;
+	void  TakeDamage(const float takenDamage) override;
 
 	Rectf		 GetVictimRect();
 	Point2f		 GetVictimPosition();
@@ -22,19 +24,19 @@ public:
 	void		 ToggleTargetable();
 private:
 	//Constants
-	static const	 int	VICTIM_SIZE		{  25    };
-	static const	 int	KILL_SCORE		{   1    };
-	static const	 int	MAX_HEALTH		{  20    };
-	static constexpr float	WANDER_TIMER	{   0.5f };
+	static const	 int	VICTIM_SIZE		{ 25 };
+	static const	 int	KILL_SCORE		{  1 };
+	static const	 int	MAX_HEALTH		{ 20 };
+	static const	 int	DAMAGE_RANGE	{ 25 };
+	static const     int	DAMAGE          {  5 };
 
 	//Private Members
 	Point2f m_Position;
 
-	float	m_MoveTimer;
 	float	m_Health;
-	int		m_RandomDirection;
 	bool	m_Targetable;
-	bool	m_IsMoving;
 	bool	m_HasTakenDamage;
+
+	Player* m_PlayerPtr;
 };
 

@@ -133,7 +133,7 @@ void Game::Update( float elapsedSec )
 	{
 		if (m_VictimPtrArr[counter] != 0)
 		{
-			m_VictimPtrArr[counter]->Move(elapsedSec);
+			m_VictimPtrArr[counter]->Move(elapsedSec,m_PlayerPtr->GetPlayerPos());
 
 			Target(counter);
 
@@ -178,7 +178,7 @@ void Game::Update( float elapsedSec )
 
 	if (m_PlayerPtr->IsLevelUp())
 	{
-		m_State = GameState::Upgrade;
+  		m_State = GameState::Upgrade;
 
 		m_PlayerPtr->AddXP(-m_PlayerPtr->GetXP());
 		m_PlayerPtr->ToggleLevelUp();
@@ -297,7 +297,7 @@ void Game::CreateVictim(const int index)
 {
 	if (m_VictimPtrArr[index] == 0)
 	{
-		m_VictimPtrArr[index] = new Victim();
+		m_VictimPtrArr[index] = new Victim(m_PlayerPtr);
 	}
 }
 

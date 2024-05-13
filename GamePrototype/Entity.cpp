@@ -16,6 +16,10 @@ void Entity::Move(float elapsedSec)
 
 }
 
+void Entity::Move(float elapsedSec, const Point2f& target)
+{
+}
+
 void Entity::Action()
 {
 
