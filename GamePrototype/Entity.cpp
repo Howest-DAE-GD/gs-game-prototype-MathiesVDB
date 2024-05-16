@@ -39,3 +39,8 @@ void Entity::TakeDamage(const float takenDamage)
 {
 	
 }
+
+void Entity::SetPosition(const Point2f& newPos)
+{
+
+}

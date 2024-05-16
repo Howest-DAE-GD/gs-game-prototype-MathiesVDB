@@ -32,13 +32,18 @@ void Button::ProcessMouseMotionEvent(const SDL_MouseMotionEvent& e)
 	else m_Hover = false;
 }
 
-void Button::ProcessMouseDownEvent(const SDL_MouseButtonEvent& e)
-{
-	if (IsPointInRect(Point2f{ float(e.x), float(e.y) }, m_MyBounds) == true) m_Pressed = true;
-}
 void Button::ProcessMouseUpEvent(const SDL_MouseButtonEvent& e)
 {
-	if (IsPointInRect(Point2f{ float(e.x), float(e.y) }, m_MyBounds) == true) m_Pressed = false;
+	if (IsPointInRect(Point2f{ float(e.x), float(e.y) }, m_MyBounds) == true) m_Pressed = true;
+	else
+	{
+		m_Pressed = false;
+	}
+}
+
+void Button::ReleaseButton()
+{
+	m_Pressed = false;
 }
 
 bool Button::IsPressed()

@@ -98,14 +98,15 @@ void Game::ResetGame()
 	m_State = GameState::Start;
 	m_Score = 0;
 	m_PlayerPtr->SetPosition(Point2f{ 450, 250 });
-	//m_PlayerPtr->AddHealth(m_PlayerPtr->GetMaxHealth());
+	m_PlayerPtr->AddHealth(m_PlayerPtr->GetMaxHealth());
+	m_PlayerPtr->AddXP(-m_PlayerPtr->GetXP());
 
 	for (int counter{}; counter < MAX_VICTIMS; ++counter)
 	{
 		DeleteVictim(counter);
 	}
 
-	for (int counter{}; counter <= 5; ++counter)
+	for (int counter{}; counter <= 3; ++counter)
 	{
 		CreateVictim(counter);
 	}
@@ -119,97 +120,115 @@ void Game::ResetGame()
 
 void Game::Update( float elapsedSec )
 {
-	m_cameraPos = Point2f{
-		m_PlayerPtr->GetPlayerPos().x - GetViewPort().width / 2,
-		m_PlayerPtr->GetPlayerPos().y - GetViewPort().height / 2 };
-
-	m_RespawnTimer += elapsedSec;
-	
-	m_PlayerPtr->Update(elapsedSec, m_State == GameState::Game);
-
-	bool hasAttacked{ false };
-
-	for (int counter{}; counter < MAX_VICTIMS; ++counter)
+	if (m_State == GameState::Game)
 	{
-		if (m_VictimPtrArr[counter] != 0)
+		m_cameraPos = Point2f{
+			m_PlayerPtr->GetPlayerPos().x - GetViewPort().width / 2,
+			m_PlayerPtr->GetPlayerPos().y - GetViewPort().height / 2 };
+
+		m_RespawnTimer += elapsedSec;
+
+		m_PlayerPtr->Update(elapsedSec, m_State == GameState::Game);
+
+		bool hasAttacked{ false };
+
+		for (int counter{}; counter < MAX_VICTIMS; ++counter)
 		{
-			m_VictimPtrArr[counter]->Move(elapsedSec,m_PlayerPtr->GetPlayerPos());
-
-			Target(counter);
-
-			if (m_IsAttacking && m_VictimPtrArr[counter]->IsTargetable())
+			if (m_VictimPtrArr[counter] != 0)
 			{
-				m_PlayerPtr->Action(m_VictimPtrArr[counter]);
+				m_VictimPtrArr[counter]->Move(elapsedSec, m_PlayerPtr->GetPlayerPos());
+				m_VictimPtrArr[counter]->Action();
 
-				if (m_VictimPtrArr[counter]->GetHealth() <= 0)
-				{
-					m_Score += m_VictimPtrArr[counter]->GetEntityKillScore();
-					DeleteVictim(counter);
-				}
-				
-				hasAttacked = true;
+				Target(counter);
 
-				if (hasAttacked)
+				if (m_IsAttacking && m_VictimPtrArr[counter]->IsTargetable())
 				{
-					m_IsAttacking = false;
-					break;
+					m_PlayerPtr->Action(m_VictimPtrArr[counter]);
+
+					if (m_VictimPtrArr[counter]->GetHealth() <= 0)
+					{
+						m_Score += m_VictimPtrArr[counter]->GetEntityKillScore();
+						DeleteVictim(counter);
+					}
+
+					hasAttacked = true;
+
+					if (hasAttacked)
+					{
+						m_IsAttacking = false;
+						break;
+					}
 				}
+
+				for (int otherCounter{}; otherCounter < MAX_VICTIMS; ++otherCounter)
+				{
+					if (counter != otherCounter && m_VictimPtrArr[otherCounter] != nullptr)
+					{
+						ResolveCollision(m_VictimPtrArr[counter], m_VictimPtrArr[otherCounter]);
+					}
+				}
+
+				// Check for collision with player
+				ResolveCollision(m_VictimPtrArr[counter], m_PlayerPtr);
+
 			}
 		}
-	}
 
-	auto xpIter = m_XPPtrVec.begin();
-	while (xpIter != m_XPPtrVec.end())
-	{
-		XP* xpDrop = *xpIter;
-
-		if (utils::IsOverlapping(xpDrop->GetXPHitbox(), m_PlayerPtr->GetPlayerHitbox()))
+		auto xpIter = m_XPPtrVec.begin();
+		while (xpIter != m_XPPtrVec.end())
 		{
-			m_PlayerPtr->AddXP(xpDrop->GetValue());
+			XP* xpDrop = *xpIter;
 
-			delete xpDrop;
-			xpIter = m_XPPtrVec.erase(xpIter);
+			if (utils::IsOverlapping(xpDrop->GetXPHitbox(), m_PlayerPtr->GetPlayerHitbox()))
+			{
+				m_PlayerPtr->AddXP(xpDrop->GetValue());
+
+				delete xpDrop;
+				xpIter = m_XPPtrVec.erase(xpIter);
+			}
+			else
+			{
+				++xpIter;
+			}
 		}
-		else
+
+		if (m_PlayerPtr->IsLevelUp())
 		{
-			++xpIter;
+			m_State = GameState::Upgrade;
+
+			m_PlayerPtr->AddXP(-m_PlayerPtr->GetXP());
+			m_PlayerPtr->ToggleLevelUp();
 		}
-	}
 
-	if (m_PlayerPtr->IsLevelUp())
-	{
-  		m_State = GameState::Upgrade;
-
-		m_PlayerPtr->AddXP(-m_PlayerPtr->GetXP());
-		m_PlayerPtr->ToggleLevelUp();
-	}
-
-	int counter{};
-	for (Button* Btn : m_UpgradeBtnPtrArr)
-	{
-		if (m_UpgradeBtnPtrArr[counter]->IsPressed())
+		int counter{};
+		for (Button* Btn : m_UpgradeBtnPtrArr)
 		{
-			m_PlayerPtr->Upgrade(m_UpgradeBtnPtrArr[counter]->GetValue());
+			if (m_UpgradeBtnPtrArr[counter]->IsPressed())
+			{
+				m_PlayerPtr->Upgrade(m_UpgradeBtnPtrArr[counter]->GetValue());
+				m_UpgradeBtnPtrArr[counter]->ReleaseButton();
+				break;
+			}
+			++counter;
 		}
-		++counter;
+
+		if (m_RespawnTimer >= RESPAWN_TIME_VICTIMS)
+		{
+			RespawnVictim();
+
+			m_RespawnTimer = 0;
+		}
+
+		if (m_PlayerPtr->GetHealth() <= 0)
+		{
+			m_State = GameState::GameOver;
+		}
+
+		m_Score_As_String = std::to_string(m_Score);
+
+		delete m_ScoreNumberPtr;
+		m_ScoreNumberPtr = new Text(m_Score_As_String, Color4f{ 1.f, 1.f, 1.f, 1.f }, m_SmallFontPtr);
 	}
-
-	if (m_RespawnTimer >= RESPAWN_TIME_VICTIMS)
-	{
-		RespawnVictim();
-
-		m_RespawnTimer = 0;
-	}
-
-	if (m_PlayerPtr->GetHealth() <= 0)
-	{
-		m_State = GameState::GameOver;
-	}
-
-	m_Score_As_String = std::to_string(m_Score);
-
-	delete m_ScoreNumberPtr;
-	m_ScoreNumberPtr = new Text(m_Score_As_String, Color4f{ 1.f, 1.f, 1.f, 1.f }, m_SmallFontPtr);
 
 	if (m_State == GameState::GameOver && m_FinalScoreTextPtr == 0)
 	{
@@ -342,6 +361,86 @@ void Game::RespawnVictim()
 	}
 }
 
+void Game::ResolveCollision(Victim* victim1, Victim* victim2)
+{
+	Rectf rect1 = victim1->GetVictimRect();
+	Rectf rect2 = victim2->GetVictimRect();
+
+	if (utils::IsOverlapping(rect1, rect2))
+	{
+		// Resolve collision by separating the rectangles
+		float overlapX = std::min(rect1.left + rect1.width, rect2.left + rect2.width) - std::max(rect1.left, rect2.left);
+		float overlapY = std::min(rect1.bottom + rect1.height, rect2.bottom + rect2.height) - std::max(rect1.bottom, rect2.bottom);
+
+		if (overlapX < overlapY)
+		{
+			if (rect1.left < rect2.left)
+			{
+				victim1->SetPosition(Point2f{ victim1->GetVictimPosition().x - overlapX / 2, victim1->GetVictimPosition().y });
+				victim2->SetPosition(Point2f{ victim2->GetVictimPosition().x + overlapX / 2, victim2->GetVictimPosition().y });
+			}
+			else
+			{
+				victim1->SetPosition(Point2f{ victim1->GetVictimPosition().x + overlapX / 2, victim1->GetVictimPosition().y });
+				victim2->SetPosition(Point2f{ victim2->GetVictimPosition().x - overlapX / 2, victim2->GetVictimPosition().y });
+			}
+		}
+		else
+		{
+			if (rect1.bottom < rect2.bottom)
+			{
+				victim1->SetPosition(Point2f{ victim1->GetVictimPosition().x, victim1->GetVictimPosition().y - overlapY / 2 });
+				victim2->SetPosition(Point2f{ victim2->GetVictimPosition().x, victim2->GetVictimPosition().y + overlapY / 2 });
+			}
+			else
+			{
+				victim1->SetPosition(Point2f{ victim1->GetVictimPosition().x, victim1->GetVictimPosition().y + overlapY / 2 });
+				victim2->SetPosition(Point2f{ victim2->GetVictimPosition().x, victim2->GetVictimPosition().y - overlapY / 2 });
+			}
+		}
+	}
+}
+
+void Game::ResolveCollision(Victim* victim, Player* player)
+{
+	Rectf victimRect = victim->GetVictimRect();
+	Circlef playerHitbox = player->GetPlayerHitbox();
+
+	if (utils::IsOverlapping(victimRect, playerHitbox))
+	{
+		// Resolve collision by separating the victim and player
+		float overlapX = std::min(victimRect.left + victimRect.width, playerHitbox.center.x + playerHitbox.radius) - std::max(victimRect.left, playerHitbox.center.x - playerHitbox.radius);
+		float overlapY = std::min(victimRect.bottom + victimRect.height, playerHitbox.center.y + playerHitbox.radius) - std::max(victimRect.bottom, playerHitbox.center.y - playerHitbox.radius);
+
+		if (overlapX < overlapY)
+		{
+			if (victimRect.left < playerHitbox.center.x)
+			{
+				victim->SetPosition(Point2f{ victim->GetVictimPosition().x - overlapX / 2, victim->GetVictimPosition().y });
+				player->SetPosition(Point2f{ player->GetPlayerPos().x + overlapX / 2, player->GetPlayerPos().y });
+			}
+			else
+			{
+				victim->SetPosition(Point2f{ victim->GetVictimPosition().x + overlapX / 2, victim->GetVictimPosition().y });
+				player->SetPosition(Point2f{ player->GetPlayerPos().x - overlapX / 2, player->GetPlayerPos().y });
+			}
+		}
+		else
+		{
+			if (victimRect.bottom < playerHitbox.center.y)
+			{
+				victim->SetPosition(Point2f{ victim->GetVictimPosition().x, victim->GetVictimPosition().y - overlapY / 2 });
+				player->SetPosition(Point2f{ player->GetPlayerPos().x, player->GetPlayerPos().y + overlapY / 2 });
+			}
+			else
+			{
+				victim->SetPosition(Point2f{ victim->GetVictimPosition().x, victim->GetVictimPosition().y + overlapY / 2 });
+				player->SetPosition(Point2f{ player->GetPlayerPos().x, player->GetPlayerPos().y - overlapY / 2 });
+			}
+		}
+	}
+}
+
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 {
 	if (e.keysym.sym == SDLK_r && m_State == GameState::GameOver)
@@ -374,11 +473,6 @@ void Game::ProcessMouseMotionEvent( const SDL_MouseMotionEvent& e )
 void Game::ProcessMouseDownEvent( const SDL_MouseButtonEvent& e )
 {
 	m_State = GameState::Game;
-
-	for (int counter{}; counter < NR_OF_UPGRADES; ++counter)
-	{
-		m_UpgradeBtnPtrArr[counter]->ProcessMouseDownEvent(e);
-	}
 }
 
 void Game::ProcessMouseUpEvent( const SDL_MouseButtonEvent& e )

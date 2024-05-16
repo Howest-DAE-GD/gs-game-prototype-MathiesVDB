@@ -11,7 +11,8 @@ public:
 
 	virtual int	  GetEntityKillScore() const;
 	virtual float GetHealth() const;
-	virtual void TakeDamage(const float takenDamage);
+	virtual void  TakeDamage(const float takenDamage);
+	virtual void  SetPosition(const Point2f& newPos);
 
 	//constants
 	static const int SPEED{ 250 };

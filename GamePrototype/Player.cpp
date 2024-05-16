@@ -117,6 +117,11 @@ int Player::GetMaxHealth() const
 	return m_MaxHealth;
 }
 
+void Player::TakeDamage(const float takenDamage)
+{
+	m_Health -= takenDamage;
+}
+
 void Player::AddXP(int xpIncrease)
 {
 	m_Exp += xpIncrease;
@@ -153,9 +158,10 @@ void Player::Upgrade(const int upgradeIndex) // index: 0 = Attack speed upgrade,
 	{
 	case 0:
 		m_MaxHealth *= UPGRADE_INCREMENT;
+		std::cout << m_Health << std::endl;
 		break;
 	case 1:
-		m_Damage *= UPGRADE_INCREMENT;
+		++m_Damage;
 		std::cout << m_Damage << std::endl;
 		break;
 	case 2:

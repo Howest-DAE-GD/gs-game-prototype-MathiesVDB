@@ -8,7 +8,9 @@
 Victim::Victim(Player* playerPtr) :
 	m_Targetable{ false },
 	m_Health{MAX_HEALTH},
-	m_PlayerPtr{playerPtr}
+	m_PlayerPtr{playerPtr},
+	m_HasTakenDamage{false},
+	m_AttackCooldown{}
 {
 	m_Position = Point2f{ float(rand() % 800), float(rand() % 500) };
 }
@@ -41,17 +43,20 @@ void Victim::Draw() const
 
 void Victim::Move(float elapsedSec, const Point2f& target)
 {
+	m_AttackCooldown += elapsedSec;
+
 	Vector2f velocity{ target.x - m_Position.x, target.y - m_Position.y };
-	m_Position += velocity.Normalized() * SPEED * elapsedSec;
+	m_Position += velocity.Normalized() * (SPEED - 30) * elapsedSec;
 
 	m_HasTakenDamage = false;
 }
 
 void Victim::Action()
 {
-	if (utils::IsPointInCircle(m_PlayerPtr->GetPlayerPos(), Circlef{ m_Position, DAMAGE_RANGE }))
+	if (utils::IsPointInCircle(m_PlayerPtr->GetPlayerPos(), Circlef{ m_Position, DAMAGE_RANGE }) && m_AttackCooldown >= ATTACK_COOLDOWN)
 	{
 		m_PlayerPtr->TakeDamage(DAMAGE);
+		m_AttackCooldown = 0;
 	}
 }
 
@@ -70,6 +75,11 @@ void Victim::TakeDamage(const float takenDamage)
 	m_Health -= takenDamage;
 
 	m_HasTakenDamage = true;
+}
+
+void Victim::SetPosition(const Point2f& newPos)
+{
+	m_Position = newPos;
 }
 
 Rectf Victim::GetVictimRect()

@@ -76,4 +76,6 @@ private:
 	void Target(const int index);
 	void RespawnVictim();
 	void ResetGame();
+	void ResolveCollision(Victim* victim1, Victim* victim2);
+	void ResolveCollision(Victim* victim , Player* player);
 };

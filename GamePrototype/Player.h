@@ -19,6 +19,7 @@ public:
 	void  AddHealth(const float hearthIncrease);
 	float GetHealth() const;
 	int	  GetMaxHealth() const;
+	void  TakeDamage(const float takenDamage) override;
 
 	void  AddXP(int xpIncrease);
 	float GetXP() const;
@@ -31,7 +32,7 @@ public:
 	bool CanAttack() const;
 	void ResetAttackCooldown();
 
-	void SetPosition(const Point2f& newPos);
+	void SetPosition(const Point2f& newPos) override;
 	Point2f GetPlayerPos() const;
 	Circlef GetPlayerHitbox() const;
 
