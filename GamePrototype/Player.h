@@ -44,12 +44,12 @@ private:
 	};
 
 	//Constants
-	const float UPGRADE_INCREMENT{   1.1f };
-	const float ATTACK_COOLDOWN	 {	 0.5f };
-	const float REGEN_COOLDOWN   {   2.f  };
-	const int   RADIUS_PLAYER	 {  15    };
-	const int   XP_THRESHHOLD	 { 100    };
-	const int	KILL_RADIUS		 {  35    };
+	const float UPGRADE_INCREMENT		{   1.1f   };
+	const float ATTACK_COOLDOWN			{	  0.5f };
+	const float OUT_OF_COMBAT_REGEN_TIME{   2.f    };
+	const int   RADIUS_PLAYER			{  15      };
+	const int   XP_THRESHHOLD			{ 100      };
+	const int	KILL_RADIUS				{  35      };
 
 	//Variables
 	float m_MaxHealth;
@@ -57,7 +57,7 @@ private:
 	float m_Exp;
 	float m_HealthRegen;
 	float m_AttackCooldown;
-	float m_RegenCooldown;
+	float m_TimeSinceLastFight;
 	int	  m_Damage;
 	bool  m_CanAttack;
 	bool  m_HasTarget;

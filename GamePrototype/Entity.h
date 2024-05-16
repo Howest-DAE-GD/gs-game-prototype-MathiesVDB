@@ -18,6 +18,6 @@ public:
 	static const int SPEED{ 250 };
 
 private:
-
+	Point2f m_Position;
 };
 

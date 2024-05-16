@@ -10,7 +10,7 @@ XP::XP(Point2f pos, Type xpType)
 	switch (m_XPType)
 	{
 	case Type::Small:
-		m_Value = 100;
+		m_Value = 10;
 		break;
 	case Type::Medium:
 		m_Value = 20;

@@ -12,7 +12,7 @@ Player::Player() :
 	m_HasTarget{},
 	m_Damage{10},
 	m_AttackCooldown{},
-	m_RegenCooldown{},
+	m_TimeSinceLastFight{},
 	m_CanAttack{true},
 	m_IsLevelUp{false},
 	m_HealthRegen{0.1f}
@@ -24,15 +24,13 @@ void Player::Draw(const Point2f& cameraPos) const
 {
 	utils::DrawEllipse(m_Position, RADIUS_PLAYER, RADIUS_PLAYER, 3.f);
 
-	//utils::DrawEllipse(m_Position, KILL_RADIUS, KILL_RADIUS, 2.f);
-
 	ShowStats(cameraPos);
 }
 
 void Player::Update(float elapsedSec, bool isPlaying)
 {
 	m_AttackCooldown += elapsedSec;
-	m_RegenCooldown  += elapsedSec;
+	m_TimeSinceLastFight += elapsedSec;
 
 	if (m_AttackCooldown >= ATTACK_COOLDOWN)
 	{
@@ -43,10 +41,9 @@ void Player::Update(float elapsedSec, bool isPlaying)
 		m_CanAttack = false;
 	}
 
-	if (m_RegenCooldown >= REGEN_COOLDOWN)
+	if (m_TimeSinceLastFight >= OUT_OF_COMBAT_REGEN_TIME)
 	{
 		AddHealth(m_HealthRegen);
-		m_RegenCooldown = 0;
 	}
 
 	if (isPlaying)
@@ -76,6 +73,7 @@ void Player::Move(float elapsedSec)
 void Player::Action(Victim* victim)
 {	
 	victim->TakeDamage(m_Damage);
+	m_TimeSinceLastFight = 0;
 }
 
 void Player::ShowStats(const Point2f& cameraPos) const
@@ -120,6 +118,7 @@ int Player::GetMaxHealth() const
 void Player::TakeDamage(const float takenDamage)
 {
 	m_Health -= takenDamage;
+	m_TimeSinceLastFight = 0;
 }
 
 void Player::AddXP(int xpIncrease)

@@ -111,10 +111,22 @@ void Game::ResetGame()
 		CreateVictim(counter);
 	}
 
-	for (XP* xpDrop : m_XPPtrVec)
+	auto xpIter = m_XPPtrVec.begin();
+	while (xpIter != m_XPPtrVec.end())
 	{
-		delete xpDrop;
-		xpDrop = nullptr;
+		XP* xpDrop = *xpIter;
+
+		if (utils::IsOverlapping(xpDrop->GetXPHitbox(), m_PlayerPtr->GetPlayerHitbox()))
+		{
+			m_PlayerPtr->AddXP(xpDrop->GetValue());
+
+			delete xpDrop;
+			xpIter = m_XPPtrVec.erase(xpIter);
+		}
+		else
+		{
+			++xpIter;
+		}
 	}
 }
 
