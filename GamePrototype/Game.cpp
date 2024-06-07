@@ -473,7 +473,7 @@ void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 	{
 		m_State = GameState::Tutorial;
 	}
-	if (e.keysym.sym == SDLK_SPACE && m_PlayerPtr->CanAttack())
+	if (e.keysym.sym == SDLK_SPACE && m_PlayerPtr->CanAttack() && m_State != GameState::Upgrade)
 	{
 		m_IsAttacking = true;
 		m_PlayerPtr->ResetAttackCooldown();
