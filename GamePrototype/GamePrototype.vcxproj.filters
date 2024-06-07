@@ -63,6 +63,9 @@
     <ClCompile Include="CameraManager.cpp">
       <Filter>Camera Files</Filter>
     </ClCompile>
+    <ClCompile Include="Soldier.cpp">
+      <Filter>Entity Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -94,6 +97,9 @@
     </ClInclude>
     <ClInclude Include="CameraManager.h">
       <Filter>Camera Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Soldier.h">
+      <Filter>Entity Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

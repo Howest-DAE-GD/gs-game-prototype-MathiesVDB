@@ -3,7 +3,7 @@
 #include "vector"
 
 class Player;
-class Victim;
+class Entity;
 class Text;
 class XP;
 class Button;
@@ -47,13 +47,16 @@ private:
 	float		m_RespawnTimer;
 	bool		m_IsAttacking;
 	int			m_Score;
+	int			m_VictimSpawnChance;
+	int			m_PoliceSpawnChance;
+	int			m_SoldierSpawnChance;
 	std::string m_Score_As_String;
 	Point2f		m_cameraPos;
 	std::vector<XP*> m_XPPtrVec;
 
 	GameState   m_State;
 
-	Victim*			m_VictimPtrArr[MAX_VICTIMS];
+	Entity*			m_VictimPtrArr[MAX_VICTIMS];
 	Button*			m_UpgradeBtnPtrArr[NR_OF_UPGRADES];
 	Player*			m_PlayerPtr;
 	TTF_Font*		m_BigFontPtr;
@@ -82,6 +85,6 @@ private:
 	void Target(const int index);
 	void RespawnVictim();
 	void ResetGame();
-	void ResolveCollision(Victim* victim1, Victim* victim2);
-	void ResolveCollision(Victim* victim , Player* player);
+	void ResolveCollision(Entity* victim1, Entity* victim2);
+	void ResolveCollision(Entity* victim , Player* player);
 };

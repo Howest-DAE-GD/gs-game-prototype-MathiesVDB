@@ -1,22 +1,22 @@
 #include "pch.h"
-#include "Police.h"
+#include "Soldier.h"
 #include "utils.h"
 
-Police::Police()
-    :   Entity(18, 30, 25, 10, 2, 3)
+Soldier::Soldier()
+	: Entity(18, 50, 25, 20, 3, 5)
 {
 	m_Position = Point2f{ float(rand() % 800), float(rand() % 500) };
 }
 
-void Police::Draw() const
+void Soldier::Draw() const
 {
 	if (m_Targetable)
 	{
-		utils::SetColor(Color4f{ 1.f, 0.3f, 0.3f, 1.f });
+		utils::SetColor(Color4f{ 1.f, 0.5f, 0.5f, 1.f });
 	}
 	else
 	{
-		utils::SetColor(Color4f{ 0.f, 0.f, 1.f, 1.f });
+		utils::SetColor(Color4f{ 0.f, 1.f, 0.f, 1.f });
 	}
 
 	utils::FillRect(m_Position, m_Size, m_Size);
@@ -34,12 +34,12 @@ void Police::Draw() const
 	}
 }
 
-bool Police::IsTargetable() const
+bool Soldier::IsTargetable() const
 {
-    return m_Targetable;
+	return m_Targetable;
 }
 
-void Police::ToggleTargetable()
+void Soldier::ToggleTargetable()
 {
-    m_Targetable = !m_Targetable;
+	m_Targetable = !m_Targetable;
 }

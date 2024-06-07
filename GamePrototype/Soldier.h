@@ -1,10 +1,10 @@
 #pragma once
 #include "Entity.h"
 
-class Police final : public Entity 
+class Soldier final : public Entity
 {
 public:
-	explicit	 Police();
+	explicit	 Soldier();
 
 	void Draw() const override;
 

@@ -69,12 +69,10 @@ void Player::Move(float elapsedSec, const Point2f& target)
 
 	m_Position += velocity.Normalized() * SPEED * elapsedSec;
 
-	HandleBorderCollision(m_Position, m_PreviousPos);
-
-	m_PreviousPos = m_Position;
+	HandleBorderCollision(m_Position);
 }
 
-void Player::Action(Victim* victim)
+void Player::Action(Entity* victim)
 {	
 	victim->TakeDamage(m_Damage);
 	m_TimeSinceLastFight = 0;
@@ -173,11 +171,11 @@ void Player::Upgrade(const int upgradeIndex) // index: 0 = Attack speed upgrade,
 	}
 }
 
-bool Player::IsClose(Victim* victim) const
+bool Player::IsClose(Entity* victim) const
 {
 	Circlef playerKillRadius{ m_Position, (float)m_DamageRange };
 
-	if (utils::IsOverlapping(victim->GetVictimRect(), playerKillRadius))
+	if (utils::IsOverlapping(victim->GetRect(), playerKillRadius))
 	{
 		return true;
 	}

@@ -11,7 +11,7 @@ public:
 
 	virtual void Draw(const Point2f& cameraPos) const;
 	virtual void Move(float elapsedSec, const Point2f& target = Point2f{ 0,0 }) override;
-	virtual void Action(Victim* victim);
+	virtual void Action(Entity* victim);
 
 	void Update(float elapsedSec, bool isPlaying);
 	void ShowStats(const Point2f& cameraPos) const;
@@ -28,7 +28,7 @@ public:
 	void  ToggleLevelUp();
 	void  Upgrade(const int upgradeIndex);
 
-	bool IsClose(Victim* victim) const;
+	bool IsClose(Entity* victim) const;
 	bool CanAttack() const;
 	void ResetAttackCooldown();
 

@@ -1,7 +1,10 @@
 #include "pch.h"
 #include "Game.h"
 #include "utils.h"
+#include "Entity.h"
 #include "Victim.h"
+#include "Police.h"
+#include "Soldier.h"
 #include "Player.h"
 #include "iostream"
 #include "Text.h"
@@ -108,6 +111,10 @@ void Game::Cleanup( )
 
 void Game::ResetGame()
 {
+	m_VictimSpawnChance = 50;
+	m_PoliceSpawnChance = 0;
+	m_SoldierSpawnChance = 0;
+
 	m_State = GameState::Start;
 	m_Score = 0;
 	m_PlayerPtr->SetPosition(Point2f{ 450, 250 });
@@ -167,6 +174,14 @@ void Game::Update( float elapsedSec )
 					{
 						m_Score += m_VictimPtrArr[counter]->GetEntityKillScore();
 						DeleteVictim(counter);
+
+						m_PoliceSpawnChance += 10;
+						m_SoldierSpawnChance += 5;
+
+						if (m_Score >= 50 && m_VictimSpawnChance >= 0)
+						{
+							m_VictimSpawnChance -= 5;
+						}
 					}
 
 					hasAttacked = true;
@@ -336,9 +351,22 @@ void Game::TutorialScreen() const
 
 void Game::CreateVictim(const int index)
 {
+	int spawnChances{ m_VictimSpawnChance + m_PoliceSpawnChance + m_SoldierSpawnChance };
+	int randNumber = rand() % spawnChances;
 	if (m_VictimPtrArr[index] == 0)
 	{
-		m_VictimPtrArr[index] = new Victim(m_PlayerPtr);
+		if (randNumber <= 50)
+		{
+			m_VictimPtrArr[index] = new Victim();
+		}
+		else if (randNumber <= 150)
+		{
+			m_VictimPtrArr[index] = new Police();
+		}
+		else
+		{
+			m_VictimPtrArr[index] = new Soldier();
+		}
 	}
 }
 
@@ -346,7 +374,18 @@ void Game::DeleteVictim(const int index)
 {
 	if (m_VictimPtrArr[index] != 0)
 	{
-		m_XPPtrVec.push_back(new XP(m_VictimPtrArr[index]->GetVictimPosition(), Type::Small));
+		if (m_VictimPtrArr[index]->GetValue() == 1)
+		{
+			m_XPPtrVec.push_back(new XP(m_VictimPtrArr[index]->GetPosition(), Type::Small));
+		}
+		else if (m_VictimPtrArr[index]->GetValue() == 2)
+		{
+			m_XPPtrVec.push_back(new XP(m_VictimPtrArr[index]->GetPosition(), Type::Medium));
+		}
+		else
+		{
+			m_XPPtrVec.push_back(new XP(m_VictimPtrArr[index]->GetPosition(), Type::Large));
+		}
 
 		delete m_VictimPtrArr[index];
 		m_VictimPtrArr[index] = nullptr;
@@ -383,10 +422,10 @@ void Game::RespawnVictim()
 	}
 }
 
-void Game::ResolveCollision(Victim* victim1, Victim* victim2)
+void Game::ResolveCollision(Entity* victim1, Entity* victim2)
 {
-	Rectf rect1 = victim1->GetVictimRect();
-	Rectf rect2 = victim2->GetVictimRect();
+	Rectf rect1 = victim1->GetRect();
+	Rectf rect2 = victim2->GetRect();
 
 	if (utils::IsOverlapping(rect1, rect2))
 	{
@@ -398,34 +437,34 @@ void Game::ResolveCollision(Victim* victim1, Victim* victim2)
 		{
 			if (rect1.left < rect2.left)
 			{
-				victim1->SetPosition(Point2f{ victim1->GetVictimPosition().x - overlapX / 2, victim1->GetVictimPosition().y });
-				victim2->SetPosition(Point2f{ victim2->GetVictimPosition().x + overlapX / 2, victim2->GetVictimPosition().y });
+				victim1->SetPosition(Point2f{ victim1->GetPosition().x - overlapX / 2, victim1->GetPosition().y });
+				victim2->SetPosition(Point2f{ victim2->GetPosition().x + overlapX / 2, victim2->GetPosition().y });
 			}
 			else
 			{
-				victim1->SetPosition(Point2f{ victim1->GetVictimPosition().x + overlapX / 2, victim1->GetVictimPosition().y });
-				victim2->SetPosition(Point2f{ victim2->GetVictimPosition().x - overlapX / 2, victim2->GetVictimPosition().y });
+				victim1->SetPosition(Point2f{ victim1->GetPosition().x + overlapX / 2, victim1->GetPosition().y });
+				victim2->SetPosition(Point2f{ victim2->GetPosition().x - overlapX / 2, victim2->GetPosition().y });
 			}
 		}
 		else
 		{
 			if (rect1.bottom < rect2.bottom)
 			{
-				victim1->SetPosition(Point2f{ victim1->GetVictimPosition().x, victim1->GetVictimPosition().y - overlapY / 2 });
-				victim2->SetPosition(Point2f{ victim2->GetVictimPosition().x, victim2->GetVictimPosition().y + overlapY / 2 });
+				victim1->SetPosition(Point2f{ victim1->GetPosition().x, victim1->GetPosition().y - overlapY / 2 });
+				victim2->SetPosition(Point2f{ victim2->GetPosition().x, victim2->GetPosition().y + overlapY / 2 });
 			}
 			else
 			{
-				victim1->SetPosition(Point2f{ victim1->GetVictimPosition().x, victim1->GetVictimPosition().y + overlapY / 2 });
-				victim2->SetPosition(Point2f{ victim2->GetVictimPosition().x, victim2->GetVictimPosition().y - overlapY / 2 });
+				victim1->SetPosition(Point2f{ victim1->GetPosition().x, victim1->GetPosition().y + overlapY / 2 });
+				victim2->SetPosition(Point2f{ victim2->GetPosition().x, victim2->GetPosition().y - overlapY / 2 });
 			}
 		}
 	}
 }
 
-void Game::ResolveCollision(Victim* victim, Player* player)
+void Game::ResolveCollision(Entity* victim, Player* player)
 {
-	Rectf victimRect = victim->GetVictimRect();
+	Rectf victimRect = victim->GetRect();
 	Circlef playerHitbox = player->GetPlayerHitbox();
 
 	if (utils::IsOverlapping(victimRect, playerHitbox))
@@ -438,12 +477,12 @@ void Game::ResolveCollision(Victim* victim, Player* player)
 		{
 			if (victimRect.left < playerHitbox.center.x)
 			{
-				victim->SetPosition(Point2f{ victim->GetVictimPosition().x - overlapX / 2, victim->GetVictimPosition().y });
+				victim->SetPosition(Point2f{ victim->GetPosition().x - overlapX / 2, victim->GetPosition().y });
 				player->SetPosition(Point2f{ player->GetPlayerPos().x + overlapX / 2, player->GetPlayerPos().y });
 			}
 			else
 			{
-				victim->SetPosition(Point2f{ victim->GetVictimPosition().x + overlapX / 2, victim->GetVictimPosition().y });
+				victim->SetPosition(Point2f{ victim->GetPosition().x + overlapX / 2, victim->GetPosition().y });
 				player->SetPosition(Point2f{ player->GetPlayerPos().x - overlapX / 2, player->GetPlayerPos().y });
 			}
 		}
@@ -451,12 +490,12 @@ void Game::ResolveCollision(Victim* victim, Player* player)
 		{
 			if (victimRect.bottom < playerHitbox.center.y)
 			{
-				victim->SetPosition(Point2f{ victim->GetVictimPosition().x, victim->GetVictimPosition().y - overlapY / 2 });
+				victim->SetPosition(Point2f{ victim->GetPosition().x, victim->GetPosition().y - overlapY / 2 });
 				player->SetPosition(Point2f{ player->GetPlayerPos().x, player->GetPlayerPos().y + overlapY / 2 });
 			}
 			else
 			{
-				victim->SetPosition(Point2f{ victim->GetVictimPosition().x, victim->GetVictimPosition().y + overlapY / 2 });
+				victim->SetPosition(Point2f{ victim->GetPosition().x, victim->GetPosition().y + overlapY / 2 });
 				player->SetPosition(Point2f{ player->GetPlayerPos().x, player->GetPlayerPos().y - overlapY / 2 });
 			}
 		}
