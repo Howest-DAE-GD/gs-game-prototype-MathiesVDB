@@ -12,7 +12,7 @@ int SDL_main(int argv, char** args)
 
 	StartHeapControl();
 
-	Game* pGame{ new Game{ Window{ "Vampire game Prototype - Van den Bulcke, Mathies - 1DAE16", 900.f , 500.f } } };
+	Game* pGame{ new Game{ Window{ "Monster Munch - Van den Bulcke, Mathies - 1DAE16", 900.f , 500.f } } };
 	pGame->Run();
 	delete pGame;
 
