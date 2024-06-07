@@ -6,12 +6,9 @@
 #include "iostream"
 
 Player::Player() :
-	m_MaxHealth{ 100 },
-	m_Health{ 10 },
+	Entity(10, 100, 35, 10),
 	m_Exp{},
 	m_HasTarget{},
-	m_Damage{10},
-	m_AttackCooldown{},
 	m_TimeSinceLastFight{},
 	m_CanAttack{true},
 	m_IsLevelUp{false},
@@ -22,7 +19,7 @@ Player::Player() :
 
 void Player::Draw(const Point2f& cameraPos) const
 {
-	utils::DrawEllipse(m_Position, RADIUS_PLAYER, RADIUS_PLAYER, 3.f);
+	utils::FillEllipse(m_Position, m_Size, m_Size);
 
 	ShowStats(cameraPos);
 }
@@ -52,8 +49,9 @@ void Player::Update(float elapsedSec, bool isPlaying)
 	}
 }
 
-void Player::Move(float elapsedSec)
+void Player::Move(float elapsedSec, const Point2f& target)
 {
+	Vector2f velocity{};
 	const Uint8* pStates = SDL_GetKeyboardState(nullptr);
 
 	// read the key values
@@ -64,10 +62,16 @@ void Player::Move(float elapsedSec)
 	const bool isDown	{ bool(pStates[SDL_SCANCODE_DOWN ]) };
 
 	// update position
-	if (isLeft)		m_Position.x -= SPEED * elapsedSec;
-	if (isRight)	m_Position.x += SPEED * elapsedSec;
-	if (isUp)		m_Position.y += SPEED * elapsedSec;
-	if (isDown)		m_Position.y -= SPEED * elapsedSec;
+	if (isLeft)		velocity.x -= SPEED;
+	if (isRight)	velocity.x += SPEED;
+	if (isUp)		velocity.y += SPEED;
+	if (isDown)		velocity.y -= SPEED;
+
+	m_Position += velocity.Normalized() * SPEED * elapsedSec;
+
+	HandleBorderCollision(m_Position, m_PreviousPos);
+
+	m_PreviousPos = m_Position;
 }
 
 void Player::Action(Victim* victim)
@@ -79,19 +83,19 @@ void Player::Action(Victim* victim)
 void Player::ShowStats(const Point2f& cameraPos) const
 {
 	const Point2f xpBarLocation	   { cameraPos.x		, cameraPos.y	   };
-	const Point2f healthBarLocation{ cameraPos.x + 690	, cameraPos.y + 20 };
+	const Point2f healthBarLocation{ cameraPos.x + 348	, cameraPos.y + 7  };
 	
 	//Draw health bar
 	utils::SetColor(Color4f{ 1.f, 0.f, 0.f, 1.f });
-	utils::FillRect(healthBarLocation, m_Health * 2, 15);
+	utils::FillRect(healthBarLocation, m_Health / m_MaxHealth * 100, 10);
 
 	//Draw outline health bar
 	utils::SetColor(Color4f{ 1.f, 1.f, 1.f, 1.f });
-	utils::DrawRect(healthBarLocation, 200, 15, 3.f);
+	utils::DrawRect(healthBarLocation, 100, 10, 1.5f);
 
 	//Draw XP bar
 	utils::SetColor(Color4f{ 0.f, 1.f, 0.f, 1.f });
-	utils::FillRect(xpBarLocation, m_Exp * 9, 10);
+	utils::FillRect(xpBarLocation, m_Exp * 4.5f, 5);
 	utils::SetColor(Color4f{ 1.f, 1.f, 1.f, 1.f });
 }
 
@@ -156,11 +160,11 @@ void Player::Upgrade(const int upgradeIndex) // index: 0 = Attack speed upgrade,
 	switch(upgradeIndex)
 	{
 	case 0:
-		m_MaxHealth *= UPGRADE_INCREMENT;
+		m_MaxHealth += 5;
 		std::cout << m_Health << std::endl;
 		break;
 	case 1:
-		++m_Damage;
+		m_Damage += 2;
 		std::cout << m_Damage << std::endl;
 		break;
 	case 2:
@@ -171,7 +175,7 @@ void Player::Upgrade(const int upgradeIndex) // index: 0 = Attack speed upgrade,
 
 bool Player::IsClose(Victim* victim) const
 {
-	Circlef playerKillRadius{ m_Position, (float)KILL_RADIUS };
+	Circlef playerKillRadius{ m_Position, (float)m_DamageRange };
 
 	if (utils::IsOverlapping(victim->GetVictimRect(), playerKillRadius))
 	{
@@ -190,11 +194,6 @@ void Player::ResetAttackCooldown()
 	m_AttackCooldown = 0;
 }
 
-void Player::SetPosition(const Point2f& newPos)
-{
-	m_Position = newPos;
-}
-
 Point2f Player::GetPlayerPos() const
 {
 	return m_Position;
@@ -202,6 +201,6 @@ Point2f Player::GetPlayerPos() const
 
 Circlef Player::GetPlayerHitbox() const
 {
-	Circlef playerHitbox{ m_Position, (float)RADIUS_PLAYER };
+	Circlef playerHitbox{ m_Position, (float)m_Size };
 	return playerHitbox;
 }

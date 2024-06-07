@@ -39,7 +39,12 @@ void XP::Draw() const
 		break;
 	}
 	utils::FillEllipse(m_Position, RADIUS, RADIUS);
+
+	utils::SetColor(Color4f{ 0.f, 0.f, 0.f, 1.f });
+	utils::DrawEllipse(m_Position, RADIUS, RADIUS, 1.f);
+
 	utils::SetColor(Color4f{ 1.f, 1.f, 1.f, 1.f });
+
 }
 
 int XP::GetValue() const

@@ -16,7 +16,7 @@ public:
 	Circlef GetXPHitbox();
 
 	//Constants
-	static const int RADIUS{ 10 };
+	static const int RADIUS{ 6 };
 private:
 	Type m_XPType;
 

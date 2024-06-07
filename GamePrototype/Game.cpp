@@ -7,6 +7,8 @@
 #include "Text.h"
 #include "XP.h"
 #include "Button.h"
+#include "Texture.h"
+#include "CameraManager.h"
 
 Game::Game(const Window& window)
 	: BaseGame{ window },
@@ -30,6 +32,10 @@ Game::~Game( )
 
 void Game::Initialize( )
 {
+	m_TutorialPtr	= new Texture("TutorialScreen.png");
+	m_MapPtr		= new Texture("Map.png");
+	m_CameraPtr		= new CameraManager();
+
 	m_BigFontPtr	= TTF_OpenFont("Jersey15-Regular.ttf", 120);
 	m_SmallFontPtr	= TTF_OpenFont("Jersey15-Regular.ttf", 30);
 	m_PlayerPtr		= new Player();
@@ -41,7 +47,8 @@ void Game::Initialize( )
 	ResetGame();
 
 	m_GameOverTextPtr = new Text("GAME OVER",		Color4f{ 1.f, 1.f, 1.f, 1.f }, m_BigFontPtr);
-	m_StartTextPtr	  = new Text("CLICK TO START",	Color4f{ 1.f, 1.f, 1.f, 1.f }, m_BigFontPtr);
+	m_StartTextPtr	  = new Text("ATTACK YOUR FIRST VICTIM TO START",	Color4f{ 0.f, 0.f, 0.f, 1.f }, m_SmallFontPtr);
+	m_TutorialTextPtr = new Text("Press T for controls", Color4f{ 0.f, 0.f, 0.f, 1.f }, m_SmallFontPtr);
 	m_ScoreTextPtr	  = new Text("Score: ",			Color4f{ 1.f, 1.f, 1.f, 1.f }, m_SmallFontPtr);
 	m_ScoreNumberPtr  = new Text(m_Score_As_String,	Color4f{ 1.f, 1.f, 1.f, 1.f }, m_SmallFontPtr);
 }
@@ -53,14 +60,20 @@ void Game::Cleanup( )
 		DeleteVictim(counter);
 	}
 
+	delete m_TutorialPtr;
+	delete m_MapPtr;
 	delete m_PlayerPtr;
 	delete m_GameOverTextPtr;
 	delete m_StartTextPtr;
+	delete m_TutorialTextPtr;
 	delete m_ScoreTextPtr;
 	delete m_ScoreNumberPtr;
 
+	m_TutorialPtr		= nullptr;
+	m_MapPtr			= nullptr;
 	m_PlayerPtr			= nullptr;
 	m_GameOverTextPtr	= nullptr;
+	m_TutorialTextPtr	= nullptr;
 	m_StartTextPtr	    = nullptr;
 	m_ScoreTextPtr	    = nullptr;
 	m_ScoreNumberPtr    = nullptr;
@@ -103,6 +116,10 @@ void Game::ResetGame()
 
 	for (int counter{}; counter < MAX_VICTIMS; ++counter)
 	{
+		if (counter == 0)
+		{
+			m_VictimPtrArr[counter]->m_IsAggro = false;
+		}
 		DeleteVictim(counter);
 	}
 
@@ -116,31 +133,20 @@ void Game::ResetGame()
 	{
 		XP* xpDrop = *xpIter;
 
-		if (utils::IsOverlapping(xpDrop->GetXPHitbox(), m_PlayerPtr->GetPlayerHitbox()))
-		{
-			m_PlayerPtr->AddXP(xpDrop->GetValue());
-
-			delete xpDrop;
-			xpIter = m_XPPtrVec.erase(xpIter);
-		}
-		else
-		{
-			++xpIter;
-		}
+		delete xpDrop;
+		xpIter = m_XPPtrVec.erase(xpIter);
 	}
 }
 
 void Game::Update( float elapsedSec )
 {
-	if (m_State == GameState::Game)
+	if (m_State == GameState::Game || m_State == GameState::Start)
 	{
-		m_cameraPos = Point2f{
-			m_PlayerPtr->GetPlayerPos().x - GetViewPort().width / 2,
-			m_PlayerPtr->GetPlayerPos().y - GetViewPort().height / 2 };
+		m_CameraPtr->Update(m_PlayerPtr->GetPlayerPos(), GetViewPort());
 
 		m_RespawnTimer += elapsedSec;
 
-		m_PlayerPtr->Update(elapsedSec, m_State == GameState::Game);
+		m_PlayerPtr->Update(elapsedSec, true);
 
 		bool hasAttacked{ false };
 
@@ -149,7 +155,7 @@ void Game::Update( float elapsedSec )
 			if (m_VictimPtrArr[counter] != 0)
 			{
 				m_VictimPtrArr[counter]->Move(elapsedSec, m_PlayerPtr->GetPlayerPos());
-				m_VictimPtrArr[counter]->Action();
+				m_VictimPtrArr[counter]->Action(m_PlayerPtr);
 
 				Target(counter);
 
@@ -254,6 +260,7 @@ void Game::Draw( ) const
 	switch (m_State)
 	{
 	case GameState::Start:
+		GameScreen();
 		StartScreen();
 		break;
 	case GameState::Tutorial:
@@ -277,9 +284,11 @@ void Game::GameScreen() const
 {
 	glPushMatrix();
 	{
-		glTranslatef(-m_cameraPos.x, -m_cameraPos.y, 0);
+		glScalef(2, 2, 1);
+		glTranslatef(-m_CameraPtr->GetCameraPos().x, -m_CameraPtr->GetCameraPos().y, 0);
 
-		m_PlayerPtr->Draw(m_cameraPos);
+		m_MapPtr->Draw();
+		m_PlayerPtr->Draw(m_CameraPtr->GetCameraPos());
 
 		for (int counter{}; counter < MAX_VICTIMS; ++counter)
 		{
@@ -302,7 +311,8 @@ void Game::GameScreen() const
 
 void Game::StartScreen() const
 {
-	m_StartTextPtr->Draw(Point2f{ GetViewPort().width / 2 - 20, GetViewPort().height / 2 + 100 });
+	m_StartTextPtr->Draw(Point2f{ GetViewPort().width / 2 - 20, GetViewPort().height / 2 + 200 });
+	m_TutorialTextPtr-> Draw(Point2f{ GetViewPort().width / 2, GetViewPort().height / 2 - 150 });
 }
 
 void Game::GameOverScreen() const
@@ -321,7 +331,7 @@ void Game::UpgradeScreen() const
 
 void Game::TutorialScreen() const
 {
-
+	m_TutorialPtr->Draw();
 }
 
 void Game::CreateVictim(const int index)
@@ -459,10 +469,15 @@ void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 	{
 		ResetGame();
 	}
+	if (e.keysym.sym == SDLK_t && m_State == GameState::Start)
+	{
+		m_State = GameState::Tutorial;
+	}
 	if (e.keysym.sym == SDLK_SPACE && m_PlayerPtr->CanAttack())
 	{
 		m_IsAttacking = true;
 		m_PlayerPtr->ResetAttackCooldown();
+		m_State = GameState::Game;
 	}
 	else
 	{
@@ -484,7 +499,10 @@ void Game::ProcessMouseMotionEvent( const SDL_MouseMotionEvent& e )
 
 void Game::ProcessMouseDownEvent( const SDL_MouseButtonEvent& e )
 {
-	m_State = GameState::Game;
+	if (m_State == GameState::Tutorial || m_State == GameState::Upgrade)
+	{
+		m_State = GameState::Game;
+	}
 }
 
 void Game::ProcessMouseUpEvent( const SDL_MouseButtonEvent& e )

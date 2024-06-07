@@ -10,7 +10,7 @@ public:
 	explicit Player();
 
 	virtual void Draw(const Point2f& cameraPos) const;
-	virtual void Move(float elapsedSec) override;
+	virtual void Move(float elapsedSec, const Point2f& target = Point2f{ 0,0 }) override;
 	virtual void Action(Victim* victim);
 
 	void Update(float elapsedSec, bool isPlaying);
@@ -32,7 +32,6 @@ public:
 	bool CanAttack() const;
 	void ResetAttackCooldown();
 
-	void SetPosition(const Point2f& newPos) override;
 	Point2f GetPlayerPos() const;
 	Circlef GetPlayerHitbox() const;
 
@@ -47,18 +46,12 @@ private:
 	const float UPGRADE_INCREMENT		{   1.1f   };
 	const float ATTACK_COOLDOWN			{	  0.5f };
 	const float OUT_OF_COMBAT_REGEN_TIME{   2.f    };
-	const int   RADIUS_PLAYER			{  15      };
 	const int   XP_THRESHHOLD			{ 100      };
-	const int	KILL_RADIUS				{  35      };
 
 	//Variables
-	float m_MaxHealth;
-	float m_Health;
 	float m_Exp;
 	float m_HealthRegen;
-	float m_AttackCooldown;
 	float m_TimeSinceLastFight;
-	int	  m_Damage;
 	bool  m_CanAttack;
 	bool  m_HasTarget;
 	bool  m_IsLevelUp;

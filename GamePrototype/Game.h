@@ -7,6 +7,8 @@ class Victim;
 class Text;
 class XP;
 class Button;
+class Texture;
+class CameraManager;
 
 class Game : public BaseGame
 {
@@ -51,16 +53,20 @@ private:
 
 	GameState   m_State;
 
-	Victim*		m_VictimPtrArr[MAX_VICTIMS];
-	Button*		m_UpgradeBtnPtrArr[NR_OF_UPGRADES];
-	Player*		m_PlayerPtr;
-	TTF_Font*	m_BigFontPtr;
-	TTF_Font*	m_SmallFontPtr;
-	Text*		m_GameOverTextPtr;
-	Text*		m_StartTextPtr;
-	Text*		m_ScoreTextPtr;
-	Text*		m_ScoreNumberPtr;
-	Text*		m_FinalScoreTextPtr;
+	Victim*			m_VictimPtrArr[MAX_VICTIMS];
+	Button*			m_UpgradeBtnPtrArr[NR_OF_UPGRADES];
+	Player*			m_PlayerPtr;
+	TTF_Font*		m_BigFontPtr;
+	TTF_Font*		m_SmallFontPtr;
+	Text*			m_GameOverTextPtr;
+	Text*			m_TutorialTextPtr;
+	Text*			m_StartTextPtr;
+	Text*			m_ScoreTextPtr;
+	Text*			m_ScoreNumberPtr;
+	Text*			m_FinalScoreTextPtr;
+	Texture*		m_MapPtr;
+	Texture*		m_TutorialPtr;
+	CameraManager*	m_CameraPtr;
 
 	// FUNCTIONS
 	void Initialize();
